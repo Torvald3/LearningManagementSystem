@@ -8,12 +8,15 @@ internal static class AuthEndpoints
 {
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("api/auth")
+        var group = app.MapGroup("/api/auth")
             .WithTags("Auth");
 
         group.MapRegisterUser()
              .MapConfirmEmail()
              .MapLoginEndpoint();
+
+        group.MapGet("/test", () => "It's just test endpoint")
+               .RequireAuthorization();
         
         return app;
     }

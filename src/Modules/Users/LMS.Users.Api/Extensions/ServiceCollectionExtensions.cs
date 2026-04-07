@@ -18,11 +18,13 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddUsersModuleServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(opts =>
+        services.AddIdentityCore<ApplicationUser>(opts =>
             {
                 opts.User.RequireUniqueEmail = true;
                 opts.SignIn.RequireConfirmedEmail = true;
-            }).AddEntityFrameworkStores<UsersDbContext>()
+            })
+            .AddRoles<IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<UsersDbContext>()
             .AddDefaultTokenProviders();
         
         services.AddApiServices()
