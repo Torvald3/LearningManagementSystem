@@ -3,6 +3,8 @@ using LMS.Users.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddOpenApi();
+
 builder.Services.AddModulesServices(builder.Configuration);
 
 builder.Services.AddAuthServices(builder.Configuration);

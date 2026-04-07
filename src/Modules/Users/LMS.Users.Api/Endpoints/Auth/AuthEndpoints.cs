@@ -12,7 +12,8 @@ internal static class AuthEndpoints
             .WithTags("Auth");
 
         group.MapRegisterUser()
-             .MapConfirmEmail();
+             .MapConfirmEmail()
+             .MapLoginEndpoint();
         
         return app;
     }

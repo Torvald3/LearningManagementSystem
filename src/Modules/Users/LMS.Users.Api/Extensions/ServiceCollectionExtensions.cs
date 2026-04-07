@@ -18,41 +18,47 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddUsersModuleServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
-                .AddEntityFrameworkStores<UsersDbContext>();
+        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(opts =>
+            {
+                opts.User.RequireUniqueEmail = true;
+                opts.SignIn.RequireConfirmedEmail = true;
+            }).AddEntityFrameworkStores<UsersDbContext>()
+            .AddDefaultTokenProviders();
         
         services.AddApiServices()
                 .AddApplicationServices()
-                .AddInfrastructureServices(configuration.GetValue<DatabaseConfiguration>("Database")!);
+                .AddInfrastructureServices(configuration.GetRequiredSection("Database").Get<DatabaseConfiguration>()!);
 
         return services;
     }
 
     public static IServiceCollection AddAuthServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtConfiguration = configuration.GetRequiredSection("JwtAuth");
+        var jwtSection = configuration.GetRequiredSection("JwtAuth");
         
         services.AddOptions<JwtAuthConfiguration>()
-                .Bind(jwtConfiguration);
+                .Bind(jwtSection);
         
-        // services
-        //     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        //     .AddJwtBearer(options =>
-        //     {
-        //         options.TokenValidationParameters = new TokenValidationParameters
-        //         {
-        //             ValidateIssuer = true,
-        //             ValidateAudience = true,
-        //             ValidateIssuerSigningKey = true,
-        //             ValidateLifetime = true,
-        //             ValidIssuer = jwtConfiguration.,
-        //             ValidAudience = jwtConfiguration.Audience,
-        //             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration.SigningKey)),
-        //             ClockSkew = TimeSpan.Zero
-        //         };
-        //     });
-        //
-        // builder.Services.AddAuthorization();
+        var jwtConfiguration = jwtSection.Get<JwtAuthConfiguration>();
+        
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ValidIssuer = jwtConfiguration!.Issuer,
+                    ValidAudience = jwtConfiguration.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration.SigningKey)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+        
+        services.AddAuthorization();
 
         return services;
     }

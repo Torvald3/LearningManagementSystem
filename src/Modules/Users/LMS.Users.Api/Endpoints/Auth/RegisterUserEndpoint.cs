@@ -13,8 +13,8 @@ internal static class RegisterUserEndpoint
 {
     public static RouteGroupBuilder MapRegisterUser(this RouteGroupBuilder group)
     {
-        group.MapGet("/register", RegisterUserAsync)
-            .WithName($"{nameof(RegisterUserAsync)}");
+        group.MapPost("/register", RegisterUserAsync)
+             .WithName($"{nameof(RegisterUserAsync)}");
          
         return group;
     }

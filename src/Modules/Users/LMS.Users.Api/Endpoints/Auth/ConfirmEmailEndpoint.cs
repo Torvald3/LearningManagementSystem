@@ -12,7 +12,7 @@ internal static class ConfirmEmailEndpoint
 {
     public static RouteGroupBuilder MapConfirmEmail(this RouteGroupBuilder group)
     {
-        group.MapGet("/confirm-email", ConfirmEmailAsync)
+        group.MapPost("/confirm-email", ConfirmEmailAsync)
             .WithName($"{nameof(ConfirmEmailAsync)}");
          
         return group;
