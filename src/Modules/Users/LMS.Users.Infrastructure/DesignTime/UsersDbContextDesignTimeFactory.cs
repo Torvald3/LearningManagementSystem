@@ -1,8 +1,7 @@
 ﻿using LMS.Users.Infrastructure.DbContexts;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Users.Infrastructure.DesignTime;
-
-using Microsoft.EntityFrameworkCore;
 
 public class UsersDbContextDesignTimeFactory : DesignTimeDbContextFactoryBase<UsersDbContext>
 {
