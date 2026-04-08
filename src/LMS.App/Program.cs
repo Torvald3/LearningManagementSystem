@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
+builder.Services.AddObservability();
+
 builder.Services.AddModulesServices(builder.Configuration);
 
 builder.Services.AddAuthServices(builder.Configuration);
@@ -13,7 +15,7 @@ builder.Services.AddAuthServices(builder.Configuration);
 var app = builder.Build();
 
 //app.UseHttpsRedirection();
-
+app.UseRequestMetrics();
 app.UseAuthentication();
 app.UseAuthorization();
 

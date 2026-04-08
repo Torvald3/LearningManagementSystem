@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -6,6 +6,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
         <PackageReference Include="Scalar.AspNetCore" Version="2.13.19" />
@@ -13,6 +20,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Modules\Users\LMS.Users.Api\LMS.Users.Api.csproj" />
+      <ProjectReference Include="..\Modules\Courses\LMS.Courses.Api\LMS.Courses.Api.csproj" />
     </ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Common\LMS.Common.Database\LMS.Common.Database.csproj" />
+		<ProjectReference Include="..\Common\LMS.Common.Observability\LMS.Common.Observability.csproj" />
+	</ItemGroup>
 
 </Project>
