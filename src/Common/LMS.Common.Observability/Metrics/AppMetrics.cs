@@ -34,4 +34,16 @@ public class AppMetrics
     public void CourseCreated(Guid id) => _coursesGauge[id.ToString()] = 1;
 
     public void CourseDeleted(Guid id) => _coursesGauge.TryRemove(id.ToString(), out _);
+    public void Reset()
+    {
+        Interlocked.Exchange(ref _httpRequestsTotal, 0);
+        Interlocked.Exchange(ref _httpRequestsFailedTotal, 0);
+        Interlocked.Exchange(ref _activeUserSessions, 0);
+
+        _coursesGauge.Clear();
+
+        while (_requestDurationsMs.TryTake(out _))
+        {
+        }
+    }
 }

@@ -19,7 +19,13 @@ app.UseRequestMetrics();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapMetricsEndpoints();
+
 app.UseModules();
 app.UseOpenApi(builder.Configuration.GetRequiredSection("OpenApi").Get<OpenApiConfiguration>()!);
 
 app.Run();
+
+public partial class Program
+{
+}
