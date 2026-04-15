@@ -1,6 +1,6 @@
 using LMS.App.Configurations;
 using LMS.App.Extensions;
-using LMS.Users.Api.Extensions;
+using LMS.Identity.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

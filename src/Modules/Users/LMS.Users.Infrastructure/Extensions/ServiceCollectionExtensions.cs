@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
             options.UseNpgsql(databaseConfiguration.ConnectionString);
         });
 
-        services.AddTransient<IEmailService, EmailService>();
+        services.AddScoped<IUsersService, UsersService>();
         
         return services;
     }
