@@ -41,7 +41,8 @@ public class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, R
 
         var user = new ApplicationUser()
         {
-            Email = command.Email
+            Email = command.Email,
+            UserName = command.Email
         };
 
         var result = await _userManager.CreateAsync(user, command.Password);

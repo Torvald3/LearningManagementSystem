@@ -12,11 +12,11 @@ namespace LMS.Identity.Infrastructure.Implementation;
 
 public class AccessTokenGenerator : IAccessTokenGenerator
 {
-    private readonly IOptions<JwtAuthConfiguration> _jwtOptions;
+    private readonly JwtAuthConfiguration _jwtOptions;
 
     public AccessTokenGenerator(IOptions<JwtAuthConfiguration> jwtOptions)
     {
-        _jwtOptions = jwtOptions;
+        _jwtOptions = jwtOptions.Value;
     }
 
     public AccessTokenResult Generate(ApplicationUser user)
@@ -29,13 +29,13 @@ public class AccessTokenGenerator : IAccessTokenGenerator
             new(ClaimTypes.Email, user.Email ?? string.Empty)
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Value.SigningKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SigningKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expiresAtUtc = DateTime.UtcNow.AddMinutes(_jwtOptions.Value.AccessTokenLifetimeInMinutes);
+        var expiresAtUtc = DateTime.UtcNow.AddMinutes(_jwtOptions.AccessTokenLifetimeInMinutes);
 
         var jwt = new JwtSecurityToken(
-            issuer: _jwtOptions.Value.Issuer,
-            audience: _jwtOptions.Value.Audience,
+            issuer: _jwtOptions.Issuer,
+            audience: _jwtOptions.Audience,
             claims: claims,
             expires: expiresAtUtc,
             signingCredentials: credentials);

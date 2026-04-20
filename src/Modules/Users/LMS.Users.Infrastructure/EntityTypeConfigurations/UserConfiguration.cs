@@ -8,9 +8,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.ToTable("users", "users");
+        builder.ToTable("users", "users"); //TODO: create migrations
         
         builder.HasKey(x => x.Id);
+        
+        builder.HasIndex(x => x.Username)
+               .IsUnique();
 
         builder.Property(x => x.Username)
                .HasMaxLength(128)

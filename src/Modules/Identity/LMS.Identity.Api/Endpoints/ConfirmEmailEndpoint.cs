@@ -1,4 +1,6 @@
-﻿using LMS.Identity.Api.Models;
+﻿using LMS.Common.CQRS;
+using LMS.Identity.Api.Models;
+using LMS.Identity.Application.Commands.ConfirmEmail;
 using LMS.Identity.Core.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -20,28 +22,15 @@ internal static class ConfirmEmailEndpoint
 
     private static async Task<Results<NoContent, BadRequest<IEnumerable<string>>, NotFound<string>>> ConfirmEmailAsync(
         ConfirmEmailRequest request,
-        UserManager<ApplicationUser> userManager)
+        ICommandHandler<ConfirmEmailCommand, ConfirmEmailResult> commandHandler)
     {
-        var user = await userManager.FindByIdAsync(request.UserId.ToString());
+        var result = await commandHandler.HandleAsync(new ConfirmEmailCommand(request.UserId, request.Token));
 
-        if (user is null)
+        return result.Status switch
         {
-            return TypedResults.NotFound($"User with id {request.UserId} not found");
-        }
-        
-        if (user.EmailConfirmed)
-        {
-            IEnumerable<string> errors = new List<string> { "Email is already confirmed." };
-            return TypedResults.BadRequest(errors);
-        }
-
-        var result = await userManager.ConfirmEmailAsync(user, request.Token);
-
-        if (!result.Succeeded)
-        {
-            return TypedResults.BadRequest(result.Errors.Select(e => e.Description));
-        }
-
-        return TypedResults.NoContent();
+            ConfirmEmailStatus.Success => TypedResults.NoContent(),
+            ConfirmEmailStatus.UserNotFound => TypedResults.NotFound($"User with id {request.UserId} not found"),
+            _ => TypedResults.BadRequest(result.Errors)
+        };
     }
 }

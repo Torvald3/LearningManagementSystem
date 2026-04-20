@@ -17,9 +17,4 @@
       <ProjectReference Include="..\LMS.Identity.Core\LMS.Identity.Core.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Commands\ConfirmEmail\" />
-      <Folder Include="Commands\LoginUser\" />
-    </ItemGroup>
-
 </Project>
