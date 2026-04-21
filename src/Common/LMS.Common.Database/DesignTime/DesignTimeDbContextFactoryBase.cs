@@ -3,21 +3,25 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
-namespace LMS.Users.Infrastructure.DesignTime;
+namespace LMS.Common.Database.DesignTime;
 
 public abstract class DesignTimeDbContextFactoryBase<TContext> : IDesignTimeDbContextFactory<TContext>
      where TContext : DbContext
 {
-    protected DesignTimeDbContextFactoryBase(string migrationsAssemblyName)
+    protected DesignTimeDbContextFactoryBase(string migrationsAssemblyName,
+                                             string migrationHistoryTableSchema)
     {
+        _migrationHistoryTableSchema = migrationHistoryTableSchema;
         MigrationsAssemblyName = migrationsAssemblyName;
 
         InitializeConfiguration();
     }
 
+    private readonly string _migrationHistoryTableSchema;
+
     protected string MigrationsAssemblyName { get; }
 
-    protected DatabaseConfiguration DatabaseConfiguration { get; set; }
+    protected DatabaseConfiguration DatabaseConfiguration { get; private set; }
 
     public TContext CreateDbContext(string[] args)
     {
@@ -36,7 +40,7 @@ public abstract class DesignTimeDbContextFactoryBase<TContext> : IDesignTimeDbCo
                                      {
                                          sqlServerOptions.MigrationsAssembly(MigrationsAssemblyName);   
                                          
-                                         sqlServerOptions.MigrationsHistoryTable("__EFMigrationsHistory", "users");
+                                         sqlServerOptions.MigrationsHistoryTable("__EFMigrationsHistory", _migrationHistoryTableSchema);
                                      });
 
             return CreateNewInstance(optionsBuilder.Options);
@@ -55,7 +59,7 @@ public abstract class DesignTimeDbContextFactoryBase<TContext> : IDesignTimeDbCo
     {
         string location = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\LMS.App");
 
-        string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
         VerifyAppsettingsFileAvailability(location, environment);
 
         var builder = new ConfigurationBuilder()

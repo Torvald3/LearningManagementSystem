@@ -1,4 +1,5 @@
-﻿using LMS.Identity.Infrastructure.DbContexts;
+﻿using LMS.Common.Database.DesignTime;
+using LMS.Identity.Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Identity.Infrastructure.DesignTime;
@@ -6,7 +7,7 @@ namespace LMS.Identity.Infrastructure.DesignTime;
 public class IdentityDbContextDesignTimeFactory : DesignTimeDbContextFactoryBase<IdentityDbContext>
 {
     public IdentityDbContextDesignTimeFactory()
-        : base("LMS.Identity.Infrastructure")
+        : base("LMS.Identity.Infrastructure", "identity")
     {
     }
 

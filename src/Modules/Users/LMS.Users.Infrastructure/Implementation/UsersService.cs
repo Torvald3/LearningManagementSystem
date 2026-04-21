@@ -1,6 +1,7 @@
 ﻿using LMS.Users.Core.Models;
 using LMS.Users.Core.Services;
 using LMS.Users.Infrastructure.DbContexts;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Users.Infrastructure.Implementation;
 
@@ -29,5 +30,10 @@ public class UsersService : IUsersService
         });
         
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> UserExistsAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Users.AnyAsync(x => x.Id == userId, cancellationToken);
     }
 }
