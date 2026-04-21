@@ -1,6 +1,6 @@
 using LMS.App.Configurations;
 using LMS.App.Extensions;
-using LMS.Users.Api.Extensions;
+using LMS.Identity.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,13 +19,9 @@ app.UseRequestMetrics();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapMetricsEndpoints();
-
 app.UseModules();
 app.UseOpenApi(builder.Configuration.GetRequiredSection("OpenApi").Get<OpenApiConfiguration>()!);
 
 app.Run();
 
-public partial class Program
-{
-}
+public partial class Program;

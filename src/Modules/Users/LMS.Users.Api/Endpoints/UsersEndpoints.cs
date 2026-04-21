@@ -1,5 +1,5 @@
-﻿using LMS.Users.Api.Endpoints.Auth;
-using LMS.Users.Api.Endpoints.UsersOperations;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace LMS.Users.Api.Endpoints;
@@ -8,8 +8,8 @@ public static class UsersEndpoints
 {
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapUserOperationsEndpoints()
-           .MapAuthEndpoints();
+        var group = app.MapGroup("/api/users")
+            .WithTags("Users");
         
         return app;
     }

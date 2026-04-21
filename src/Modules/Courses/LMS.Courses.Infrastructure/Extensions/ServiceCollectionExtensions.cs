@@ -1,24 +1,20 @@
 ﻿using LMS.Common.Database.Configuration;
+using LMS.Courses.Core.Services;
 using LMS.Courses.Infrastructure.DbContexts;
+using LMS.Courses.Infrastructure.Implementation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LMS.Courses.Infrastructure.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCoursesInfrastructure(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, DatabaseConfiguration configuration)
     {
-        var databaseConfiguration = configuration
-            .GetRequiredSection("Database")
-            .Get<DatabaseConfiguration>()!;
+        services.AddDbContext<CoursesDbContext>(options => options.UseNpgsql(configuration.ConnectionString));
 
-        services.AddDbContext<CoursesDbContext>(options =>
-            options.UseNpgsql(databaseConfiguration.ConnectionString));
-
+        services.AddScoped<ICoursesService, CoursesService>();
+        
         return services;
     }
 }

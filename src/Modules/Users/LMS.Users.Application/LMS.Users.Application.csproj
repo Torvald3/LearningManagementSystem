@@ -11,4 +11,10 @@
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Common\LMS.Common\LMS.Common.csproj" />
+      <ProjectReference Include="..\LMS.Users.Contracts\LMS.Users.Contracts.csproj" />
+      <ProjectReference Include="..\LMS.Users.Core\LMS.Users.Core.csproj" />
+    </ItemGroup>
+
 </Project>
