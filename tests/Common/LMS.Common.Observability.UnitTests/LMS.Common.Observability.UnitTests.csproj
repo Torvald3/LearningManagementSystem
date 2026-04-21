@@ -10,9 +10,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="coverlet.collector" Version="6.0.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0-preview.7.25380.108" />
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0-preview.7.25380.108" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0-preview.7.25380.108" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
 		<PackageReference Include="xunit" Version="2.9.2" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
@@ -22,7 +19,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\src\Common\LMS.Common.Observability\LMS.Common.Observability.csproj" />
 		<ProjectReference Include="..\..\..\src\LMS.App\LMS.App.csproj" />
-		<ProjectReference Include="..\..\src\Common\LMS.Common.Observability\LMS.Common.Observability.csproj" />
 	</ItemGroup>
 
 </Project>
