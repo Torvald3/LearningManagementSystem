@@ -20,5 +20,9 @@
 		<ProjectReference Include="..\..\..\Common\LMS.Common.Database\LMS.Common.Database.csproj" />
 		<ProjectReference Include="..\..\..\Common\LMS.Common.Observability\LMS.Common.Observability.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="FluentValidation" Version="12.1.1" />
+	</ItemGroup>
 	
 </Project>

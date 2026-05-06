@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Common\LMS.Common.Observability\LMS.Common.Observability.csproj" />
+      <ProjectReference Include="..\LMS.Identity.Application\LMS.Identity.Application.csproj" />
+      <ProjectReference Include="..\LMS.Identity.Core\LMS.Identity.Core.csproj" />
+      <ProjectReference Include="..\LMS.Identity.Infrastructure\LMS.Identity.Infrastructure.csproj" />
+    </ItemGroup>
+    
+</Project>

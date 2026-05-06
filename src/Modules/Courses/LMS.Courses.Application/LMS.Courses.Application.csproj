@@ -10,4 +10,11 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\Common\LMS.Common.Observability\LMS.Common.Observability.csproj" />
+	  <ProjectReference Include="..\..\..\Common\LMS.Common\LMS.Common.csproj" />
+	  <ProjectReference Include="..\..\Users\LMS.Users.Contracts\LMS.Users.Contracts.csproj" />
+	  <ProjectReference Include="..\LMS.Courses.Core\LMS.Courses.Core.csproj" />
+	</ItemGroup>
+
 </Project>

@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Common\LMS.Common.Observability\LMS.Common.Observability.csproj" />
+      <ProjectReference Include="..\..\..\Common\LMS.Common\LMS.Common.csproj" />
+      <ProjectReference Include="..\..\Users\LMS.Users.Contracts\LMS.Users.Contracts.csproj" />
+      <ProjectReference Include="..\LMS.Identity.Core\LMS.Identity.Core.csproj" />
+    </ItemGroup>
+
+</Project>
