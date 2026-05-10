@@ -12,10 +12,20 @@ public static class CourseEndpoints
             .WithTags("Courses");
 
         group.MapCreateCourse()
+             .MapCreateCourseModule()
+             .MapCreateLesson()
              .MapUpdateCourse()
+             .MapUpdateCourseModule()
+             .MapUpdateLesson()
              .MapDeleteCourse()
+             .MapArchiveCourseModule()
+             .MapArchiveLesson()
              .MapGetCourse()
-             .MapGetCourses();
+             .MapGetCourseModule()
+             .MapGetCourseModules()
+             .MapGetCourses()
+             .MapGetLesson()
+             .MapGetLessons();
 
         return group;
     }

@@ -22,6 +22,7 @@
       <ProjectReference Include="..\Modules\Identity\LMS.Identity.Api\LMS.Identity.Api.csproj" />
       <ProjectReference Include="..\Modules\Users\LMS.Users.Api\LMS.Users.Api.csproj" />
       <ProjectReference Include="..\Modules\Courses\LMS.Courses.Api\LMS.Courses.Api.csproj" />
+      <ProjectReference Include="..\Modules\Media\LMS.Media.Api\LMS.Media.Api.csproj" />
     </ItemGroup>
 
 	<ItemGroup>

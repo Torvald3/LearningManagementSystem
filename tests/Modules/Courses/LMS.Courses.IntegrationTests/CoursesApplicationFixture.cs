@@ -146,6 +146,66 @@ public sealed class CoursesApplicationFixture : IAsyncLifetime
         return courseId;
     }
 
+    public async Task<Guid> SeedCourseModuleAsync(
+        Guid courseId,
+        string? title = null,
+        string? description = null,
+        int position = 1)
+    {
+        var moduleId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
+
+        await ExecuteInScopeAsync(async serviceProvider =>
+        {
+            var coursesDbContext = serviceProvider.GetRequiredService<CoursesDbContext>();
+
+            coursesDbContext.CourseModules.Add(new LMS.Courses.Infrastructure.Entities.CourseModule
+            {
+                Id = moduleId,
+                CourseId = courseId,
+                Title = title ?? "Introduction",
+                Description = description ?? "Getting started",
+                Position = position,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            await coursesDbContext.SaveChangesAsync();
+        });
+
+        return moduleId;
+    }
+
+    public async Task<Guid> SeedLessonAsync(
+        Guid moduleId,
+        string? title = null,
+        string? content = null,
+        int position = 1)
+    {
+        var lessonId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
+
+        await ExecuteInScopeAsync(async serviceProvider =>
+        {
+            var coursesDbContext = serviceProvider.GetRequiredService<CoursesDbContext>();
+
+            coursesDbContext.Lessons.Add(new LMS.Courses.Infrastructure.Entities.Lesson
+            {
+                Id = lessonId,
+                ModuleId = moduleId,
+                Title = title ?? "Lesson",
+                Content = content ?? "Lesson content",
+                Position = position,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            await coursesDbContext.SaveChangesAsync();
+        });
+
+        return lessonId;
+    }
+
     public async Task<TResult> ExecuteInScopeAsync<TResult>(
         Func<IServiceProvider, Task<TResult>> action)
     {
