@@ -20,7 +20,7 @@ public class UsersService : IUsersService
         _context.Users.Add(new Entities.User()
         {
             Id = user.Id,
-            AvatarUrl = user.AvatarUrl,
+            AvatarMediaId = user.AvatarMediaId,
             Bio = user.Bio,
             Username = user.Username,
             Contacts = new Entities.Contacts()
@@ -37,3 +37,4 @@ public class UsersService : IUsersService
         return await _context.Users.AnyAsync(x => x.Id == userId, cancellationToken);
     }
 }
+

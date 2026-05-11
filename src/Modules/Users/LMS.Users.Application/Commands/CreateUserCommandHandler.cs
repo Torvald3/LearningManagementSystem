@@ -18,7 +18,9 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand>
         await _usersService.CreateUserAsync(new User()
         {
             Id = command.UserId,
-            AvatarUrl = null,
+
+            AvatarMediaId = null,
+
             Username = command.Username,
             Contacts = new Contacts()
             {
@@ -28,3 +30,4 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand>
         });
     }
 }
+

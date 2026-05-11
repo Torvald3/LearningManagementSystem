@@ -10,7 +10,8 @@ public class User
     
     public string? Bio { get; set; }
 
-    public string? AvatarUrl { get; set; }
+    public Guid? AvatarMediaId { get; set; }
     
     public Contacts Contacts { get; set; }
 }
+

@@ -23,8 +23,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                .HasMaxLength(1024)
                .IsRequired(false);
         
-        builder.Property(x => x.AvatarUrl)
-               .HasMaxLength(512)
+
+        builder.Property(x => x.AvatarMediaId)
+
                .IsRequired(false);
         
         builder.HasOne(x => x.Contacts)
@@ -33,3 +34,4 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                .IsRequired();
     }
 }
+
