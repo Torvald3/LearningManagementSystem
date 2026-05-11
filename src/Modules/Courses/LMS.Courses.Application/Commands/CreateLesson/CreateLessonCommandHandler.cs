@@ -1,11 +1,13 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Courses.Application.Errors;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Courses.Application.Commands.CreateLesson;
 
-public class CreateLessonCommandHandler : ICommandHandler<CreateLessonCommand, CreateLessonResult>
+public class CreateLessonCommandHandler : ICommandHandler<CreateLessonCommand, Lesson>
 {
     private readonly ICoursesService _coursesService;
     private readonly ILogger<CreateLessonCommandHandler> _logger;
@@ -18,7 +20,7 @@ public class CreateLessonCommandHandler : ICommandHandler<CreateLessonCommand, C
         _logger = logger;
     }
 
-    public async Task<CreateLessonResult> HandleAsync(
+    public async Task<Result<Lesson>> HandleAsync(
         CreateLessonCommand command,
         CancellationToken cancellationToken = default)
     {
@@ -33,10 +35,7 @@ public class CreateLessonCommandHandler : ICommandHandler<CreateLessonCommand, C
                 "lesson.create.course_not_found",
                 command.CourseId);
 
-            return new CreateLessonResult(
-                CreateLessonStatus.CourseNotFound,
-                null,
-                ["Course not found."]);
+            return CourseErrors.CourseNotFound(command.CourseId);
         }
 
         var module = await _coursesService.GetCourseModuleAsync(
@@ -54,10 +53,7 @@ public class CreateLessonCommandHandler : ICommandHandler<CreateLessonCommand, C
                 command.CourseId,
                 command.ModuleId);
 
-            return new CreateLessonResult(
-                CreateLessonStatus.ModuleNotFound,
-                null,
-                ["Module not found."]);
+            return CourseErrors.ModuleNotFound(command.ModuleId);
         }
 
         var now = DateTime.UtcNow;
@@ -83,16 +79,13 @@ public class CreateLessonCommandHandler : ICommandHandler<CreateLessonCommand, C
             lesson.ModuleId,
             lesson.Id);
 
-        return new CreateLessonResult(
-            CreateLessonStatus.Success,
-            new Lesson(
-                lesson.Id,
-                lesson.ModuleId,
-                lesson.Title,
-                lesson.Content,
-                lesson.Position,
-                lesson.CreatedAt,
-                lesson.UpdatedAt),
-            []);
+        return new Lesson(
+            lesson.Id,
+            lesson.ModuleId,
+            lesson.Title,
+            lesson.Content,
+            lesson.Position,
+            lesson.CreatedAt,
+            lesson.UpdatedAt);
     }
 }

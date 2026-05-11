@@ -1,11 +1,13 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Media.Application.Errors;
 using LMS.Media.Application.Models;
 using LMS.Media.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Media.Application.Queries.GetMediaByEntity;
 
-public class GetMediaByEntityQueryHandler : IQueryHandler<GetMediaByEntityQuery, IReadOnlyList<MediaFile>>
+public class GetMediaByEntityQueryHandler : IQueryHandler<GetMediaByEntityQuery, List<MediaFile>>
 {
     private readonly IMediaService _mediaService;
     private readonly ILogger<GetMediaByEntityQueryHandler> _logger;
@@ -18,10 +20,15 @@ public class GetMediaByEntityQueryHandler : IQueryHandler<GetMediaByEntityQuery,
         _logger = logger;
     }
 
-    public async Task<IReadOnlyList<MediaFile>> Handle(
+    public async Task<Result<List<MediaFile>>> Handle(
         GetMediaByEntityQuery query,
         CancellationToken cancellationToken = default)
     {
+        if (query.EntityId == Guid.Empty)
+        {
+            return MediaErrors.EntityIdRequired;
+        }
+
         var mediaFiles = await _mediaService.GetMediaByEntityAsync(
             query.EntityType,
             query.EntityId,
@@ -36,7 +43,7 @@ public class GetMediaByEntityQueryHandler : IQueryHandler<GetMediaByEntityQuery,
             query.EntityId,
             mediaFiles.Count);
 
-        return mediaFiles
+        List<MediaFile> result = mediaFiles
             .Select(mediaFile => new MediaFile(
                 mediaFile.Id,
                 mediaFile.EntityType,
@@ -47,5 +54,7 @@ public class GetMediaByEntityQueryHandler : IQueryHandler<GetMediaByEntityQuery,
                 mediaFile.Size,
                 mediaFile.CreatedAt))
             .ToList();
+
+        return result;
     }
 }

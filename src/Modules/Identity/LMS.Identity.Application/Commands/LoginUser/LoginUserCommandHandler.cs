@@ -1,14 +1,12 @@
-﻿using System.Security.Claims;
-using System.Text;
 using LMS.Common.CQRS;
 using LMS.Common.Observability.Logging;
 using LMS.Common.Observability.Metrics;
-using LMS.Identity.Core.Configurations;
+using LMS.Common.Results;
+using LMS.Identity.Application.Errors;
 using LMS.Identity.Core.Models;
 using LMS.Identity.Core.TokenGenerator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace LMS.Identity.Application.Commands.LoginUser;
 
@@ -17,7 +15,6 @@ public class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, LoginUs
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly AppMetrics _metrics;
     private readonly IAccessTokenGenerator _accessTokenGenerator;
-    
     private readonly ILogger<LoginUserCommandHandler> _logger;
 
     public LoginUserCommandHandler(
@@ -32,7 +29,9 @@ public class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, LoginUs
         _accessTokenGenerator = accessTokenGenerator;
     }
 
-    public async Task<LoginUserResult> HandleAsync(LoginUserCommand command, CancellationToken cancellationToken = default)
+    public async Task<Result<LoginUserResult>> HandleAsync(
+        LoginUserCommand command,
+        CancellationToken cancellationToken = default)
     {
         var safeLogin = PiiMaskingHelper.MaskEmail(command.Email);
         
@@ -54,7 +53,7 @@ public class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, LoginUs
                 "user.login.failed.user_not_found",
                 safeLogin);
 
-            return new LoginUserResult(false, null, null, LoginError.InvalidCredentials);
+            return IdentityErrors.InvalidCredentials;
         }
 
         if (!user.EmailConfirmed)
@@ -66,7 +65,7 @@ public class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, LoginUs
                 "user.login.failed.email_not_confirmed",
                 user.Id);
 
-            return new LoginUserResult(false, null, null, LoginError.EmailNotConfirmed);
+            return IdentityErrors.EmailNotConfirmed;
         }
 
         var isValidPassword = await _userManager.CheckPasswordAsync(user, command.Password);
@@ -80,7 +79,7 @@ public class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, LoginUs
                 "user.login.failed.invalid_password",
                 user.Id);
 
-            return new LoginUserResult(false, null, null, LoginError.InvalidCredentials);
+            return IdentityErrors.InvalidCredentials;
         }
 
         var accessTokenResult = _accessTokenGenerator.Generate(user);
@@ -94,6 +93,6 @@ public class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, LoginUs
             "user.login.succeeded",
             user.Id);
 
-        return new LoginUserResult(true, accessTokenResult.Token, accessTokenResult.ExpiresAt, LoginError.None);
+        return new LoginUserResult(accessTokenResult.Token, accessTokenResult.ExpiresAt);
     }
 }

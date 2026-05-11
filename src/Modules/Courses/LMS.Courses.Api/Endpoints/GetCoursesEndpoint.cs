@@ -1,4 +1,4 @@
-﻿using LMS.Common.CQRS;
+using LMS.Common.CQRS;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Application.Queries.GetCourses;
@@ -21,9 +21,14 @@ public static class GetCoursesEndpoint
     private static async Task<IResult> GetCourses(
         IQueryHandler<GetCoursesQuery, IReadOnlyList<Course>> handler)
     {
-        var courses = await handler.Handle(new GetCoursesQuery());
+        var result = await handler.Handle(new GetCoursesQuery());
 
-        var response = courses
+        if (result.IsFailure)
+        {
+            return CourseEndpointResults.FromError(result.Error);
+        }
+
+        var response = result.Value
             .Select(course => new CourseResponse(
                 course.Id,
                 course.AuthorId,

@@ -1,11 +1,13 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Media.Application.Errors;
 using LMS.Media.Application.Models;
 using LMS.Media.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Media.Application.Queries.GetMedia;
 
-public class GetMediaQueryHandler : IQueryHandler<GetMediaQuery, MediaFile?>
+public class GetMediaQueryHandler : IQueryHandler<GetMediaQuery, MediaFile>
 {
     private readonly IMediaService _mediaService;
     private readonly ILogger<GetMediaQueryHandler> _logger;
@@ -18,7 +20,7 @@ public class GetMediaQueryHandler : IQueryHandler<GetMediaQuery, MediaFile?>
         _logger = logger;
     }
 
-    public async Task<MediaFile?> Handle(GetMediaQuery query, CancellationToken cancellationToken = default)
+    public async Task<Result<MediaFile>> Handle(GetMediaQuery query, CancellationToken cancellationToken = default)
     {
         var mediaFile = await _mediaService.GetMediaAsync(query.MediaId, cancellationToken);
 
@@ -31,7 +33,7 @@ public class GetMediaQueryHandler : IQueryHandler<GetMediaQuery, MediaFile?>
                 "media.get.not_found",
                 query.MediaId);
 
-            return null;
+            return MediaErrors.NotFound(query.MediaId);
         }
 
         return new MediaFile(

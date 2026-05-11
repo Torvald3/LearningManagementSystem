@@ -1,5 +1,7 @@
-﻿using LMS.Common.CQRS;
+using LMS.Common.CQRS;
 using LMS.Common.Observability.Logging;
+using LMS.Common.Results;
+using LMS.Identity.Application.Errors;
 using LMS.Identity.Core.Models;
 using LMS.Identity.Core.Services;
 using LMS.Users.Contracts.Models;
@@ -28,7 +30,9 @@ public class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, R
         _usersModuleService = usersModuleService;
     }
 
-    public async Task<RegisterUserResult> HandleAsync(RegisterUserCommand command, CancellationToken cancellationToken = default)
+    public async Task<Result<RegisterUserResult>> HandleAsync(
+        RegisterUserCommand command,
+        CancellationToken cancellationToken = default)
     {
         var maskedEmail = PiiMaskingHelper.MaskEmail(command.Email);
 
@@ -39,7 +43,7 @@ public class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, R
             "user.register.requested",
             maskedEmail);
 
-        var user = new ApplicationUser()
+        var user = new ApplicationUser
         {
             Email = command.Email,
             UserName = command.Email
@@ -49,15 +53,17 @@ public class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, R
 
         if (!result.Succeeded)
         {
+            var errors = result.Errors.Select(e => e.Description).ToList();
+
             _logger.LogWarning(
                 "timestamp={Timestamp} level={Level} event={Event} email={Email} errors_count={ErrorsCount}",
                 DateTime.UtcNow,
                 "WARN",
                 "user.register.failed",
                 maskedEmail,
-                result.Errors.Count());
+                errors.Count);
 
-            return new RegisterUserResult(false, null, null, null, result.Errors.Select(e => e.Description).ToList());
+            return IdentityErrors.RegistrationFailed(errors);
         }
         
         await _usersModuleService.CreateUserAsync(new CreateUserRequest(user.Id, command.Email, command.Username));
@@ -72,6 +78,6 @@ public class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, R
             "user.register.succeeded",
             user.Id);
 
-        return new RegisterUserResult(true, user.Id, user.Email, token, []);
+        return new RegisterUserResult(user.Id, user.Email!, token);
     }
 }

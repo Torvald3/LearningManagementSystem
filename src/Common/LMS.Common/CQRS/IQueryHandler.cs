@@ -1,7 +1,9 @@
-﻿namespace LMS.Common.CQRS;
+﻿using LMS.Common.Results;
+
+namespace LMS.Common.CQRS;
 
 public interface IQueryHandler<in TQuery, TResult>
     where TQuery : IQuery
 {
-    Task<TResult> Handle(TQuery query, CancellationToken cancellationToken = default);
+    Task<Result<TResult>> Handle(TQuery query, CancellationToken cancellationToken = default);
 }

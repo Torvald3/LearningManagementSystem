@@ -1,7 +1,8 @@
-﻿using FluentValidation;
+using FluentValidation;
 using LMS.Common.CQRS;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Commands.CreateCourse;
+using LMS.Courses.Application.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -21,7 +22,7 @@ public static class CreateCourseEndpoint
     private static async Task<IResult> CreateCourse(
         CreateCourseRequest request,
         IValidator<CreateCourseRequest> validator,
-        ICommandHandler<CreateCourseCommand, CreateCourseResult> handler)
+        ICommandHandler<CreateCourseCommand, Course> handler)
     {
         var validationResult = await validator.ValidateAsync(request);
 
@@ -37,20 +38,22 @@ public static class CreateCourseEndpoint
                 request.Theme,
                 request.Description));
 
-        return result.Status switch
+        if (result.IsFailure)
         {
-            CreateCourseStatus.AuthorNotFound => Results.BadRequest(result.Errors),
-            CreateCourseStatus.Success => Results.Created(
-                $"/api/courses/{result.Course!.Id}",
-                new CourseResponse( 
-                    result.Course.Id, 
-                    result.Course.AuthorId,
-                    result.Course.Title,
-                    result.Course.Theme,
-                    result.Course.Description,
-                    result.Course.CreatedAt,
-                    result.Course.UpdatedAt)),
-            _ => Results.Problem("Unexpected error while creating course.")
-        };
+            return CourseEndpointResults.FromError(result.Error);
+        }
+
+        var course = result.Value;
+
+        return Results.Created(
+            $"/api/courses/{course.Id}",
+            new CourseResponse(
+                course.Id,
+                course.AuthorId,
+                course.Title,
+                course.Theme,
+                course.Description,
+                course.CreatedAt,
+                course.UpdatedAt));
     }
 }

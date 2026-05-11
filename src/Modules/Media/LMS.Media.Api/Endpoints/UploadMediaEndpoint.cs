@@ -5,6 +5,7 @@ using LMS.Media.Core.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using MediaFileModel = LMS.Media.Application.Models.MediaFile;
 
 namespace LMS.Media.Api.Endpoints;
 
@@ -21,7 +22,7 @@ public static class UploadMediaEndpoint
 
     private static async Task<IResult> UploadMedia(
         HttpRequest request,
-        ICommandHandler<UploadMediaCommand, UploadMediaResult> handler,
+        ICommandHandler<UploadMediaCommand, MediaFileModel> handler,
         CancellationToken cancellationToken)
     {
         if (!request.HasFormContentType)
@@ -63,22 +64,23 @@ public static class UploadMediaEndpoint
                 stream),
             cancellationToken);
 
-        return result.Status switch
+        if (result.IsFailure)
         {
-            UploadMediaStatus.InvalidEntityId => Results.BadRequest(result.Errors),
-            UploadMediaStatus.EmptyFile => Results.BadRequest(result.Errors),
-            UploadMediaStatus.FileTooLarge => Results.BadRequest(result.Errors),
-            UploadMediaStatus.Success => Results.Created(
-                $"/api/media/{result.MediaFile!.Id}",
-                new MediaResponse(
-                    result.MediaFile.Id,
-                    result.MediaFile.EntityType,
-                    result.MediaFile.EntityId,
-                    result.MediaFile.OriginalFileName,
-                    result.MediaFile.ContentType,
-                    result.MediaFile.Size,
-                    result.MediaFile.CreatedAt)),
-            _ => Results.Problem("Unexpected error while uploading media.")
-        };
+            IEnumerable<string> errors = [result.Error.Message];
+            return Results.BadRequest(errors);
+        }
+
+        var mediaFile = result.Value;
+
+        return Results.Created(
+            $"/api/media/{mediaFile.Id}",
+            new MediaResponse(
+                mediaFile.Id,
+                mediaFile.EntityType,
+                mediaFile.EntityId,
+                mediaFile.OriginalFileName,
+                mediaFile.ContentType,
+                mediaFile.Size,
+                mediaFile.CreatedAt));
     }
 }

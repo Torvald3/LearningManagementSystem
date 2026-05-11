@@ -1,11 +1,13 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Courses.Application.Errors;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Courses.Application.Queries.GetLessons;
 
-public class GetLessonsQueryHandler : IQueryHandler<GetLessonsQuery, IReadOnlyList<LessonSummary>?>
+public class GetLessonsQueryHandler : IQueryHandler<GetLessonsQuery, List<LessonSummary>>
 {
     private readonly ICoursesService _coursesService;
     private readonly ILogger<GetLessonsQueryHandler> _logger;
@@ -18,7 +20,7 @@ public class GetLessonsQueryHandler : IQueryHandler<GetLessonsQuery, IReadOnlyLi
         _logger = logger;
     }
 
-    public async Task<IReadOnlyList<LessonSummary>?> Handle(
+    public async Task<Result<List<LessonSummary>>> Handle(
         GetLessonsQuery query,
         CancellationToken cancellationToken = default)
     {
@@ -37,7 +39,7 @@ public class GetLessonsQueryHandler : IQueryHandler<GetLessonsQuery, IReadOnlyLi
                 query.CourseId,
                 query.ModuleId);
 
-            return null;
+            return CourseErrors.ModuleNotFound(query.ModuleId);
         }
 
         var lessons = await _coursesService.GetLessonsAsync(query.ModuleId, cancellationToken);
@@ -50,12 +52,14 @@ public class GetLessonsQueryHandler : IQueryHandler<GetLessonsQuery, IReadOnlyLi
             query.ModuleId,
             lessons.Count);
 
-        return lessons
+        List<LessonSummary> result = lessons
             .Select(lesson => new LessonSummary(
                 lesson.Id,
                 lesson.ModuleId,
                 lesson.Title,
                 lesson.Position))
             .ToList();
+
+        return result;
     }
 }

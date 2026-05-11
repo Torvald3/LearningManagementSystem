@@ -1,4 +1,4 @@
-﻿using LMS.Common.CQRS;
+using LMS.Common.CQRS;
 using LMS.Users.Application.Commands;
 using LMS.Users.Application.Queries;
 using LMS.Users.Contracts.Models;
@@ -11,21 +11,29 @@ internal class UsersModuleService : IUsersModuleService
     private readonly ICommandHandler<CreateUserCommand> _createUserCommandHandler;
     private readonly IQueryHandler<UserExistsQuery, bool> _userExistsQueryHandler;
 
-    public UsersModuleService(ICommandHandler<CreateUserCommand> createUserCommandHandler, 
-                              IQueryHandler<UserExistsQuery, bool> userExistsQueryHandler)
+    public UsersModuleService(
+        ICommandHandler<CreateUserCommand> createUserCommandHandler,
+        IQueryHandler<UserExistsQuery, bool> userExistsQueryHandler)
     {
         _createUserCommandHandler = createUserCommandHandler;
         _userExistsQueryHandler = userExistsQueryHandler;
     }
 
-    public Task CreateUserAsync(CreateUserRequest request)
+    public async Task CreateUserAsync(CreateUserRequest request)
     {
-        return _createUserCommandHandler.HandleAsync(
+        var result = await _createUserCommandHandler.HandleAsync(
             new CreateUserCommand(request.UserId, request.Email, request.Username));
+
+        if (result.IsFailure)
+        {
+            throw new InvalidOperationException(result.Error.Message);
+        }
     }
 
-    public Task<bool> UserExistsAsync(Guid userId)
+    public async Task<bool> UserExistsAsync(Guid userId)
     {
-        return _userExistsQueryHandler.Handle(new UserExistsQuery(userId));
+        var result = await _userExistsQueryHandler.Handle(new UserExistsQuery(userId));
+
+        return result.Value;
     }
 }

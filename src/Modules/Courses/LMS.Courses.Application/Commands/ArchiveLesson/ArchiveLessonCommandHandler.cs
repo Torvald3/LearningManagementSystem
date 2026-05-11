@@ -1,10 +1,12 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Courses.Application.Errors;
 using LMS.Courses.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Courses.Application.Commands.ArchiveLesson;
 
-public class ArchiveLessonCommandHandler : ICommandHandler<ArchiveLessonCommand, ArchiveLessonResult>
+public class ArchiveLessonCommandHandler : ICommandHandler<ArchiveLessonCommand>
 {
     private readonly ICoursesService _coursesService;
     private readonly ILogger<ArchiveLessonCommandHandler> _logger;
@@ -17,7 +19,7 @@ public class ArchiveLessonCommandHandler : ICommandHandler<ArchiveLessonCommand,
         _logger = logger;
     }
 
-    public async Task<ArchiveLessonResult> HandleAsync(
+    public async Task<Result> HandleAsync(
         ArchiveLessonCommand command,
         CancellationToken cancellationToken = default)
     {
@@ -32,9 +34,7 @@ public class ArchiveLessonCommandHandler : ICommandHandler<ArchiveLessonCommand,
                 "lesson.archive.course_not_found",
                 command.CourseId);
 
-            return new ArchiveLessonResult(
-                ArchiveLessonStatus.CourseNotFound,
-                ["Course not found."]);
+            return CourseErrors.CourseNotFound(command.CourseId);
         }
 
         var module = await _coursesService.GetCourseModuleAsync(
@@ -52,9 +52,7 @@ public class ArchiveLessonCommandHandler : ICommandHandler<ArchiveLessonCommand,
                 command.CourseId,
                 command.ModuleId);
 
-            return new ArchiveLessonResult(
-                ArchiveLessonStatus.ModuleNotFound,
-                ["Module not found."]);
+            return CourseErrors.ModuleNotFound(command.ModuleId);
         }
 
         var lesson = await _coursesService.GetLessonAsync(
@@ -72,9 +70,7 @@ public class ArchiveLessonCommandHandler : ICommandHandler<ArchiveLessonCommand,
                 command.ModuleId,
                 command.LessonId);
 
-            return new ArchiveLessonResult(
-                ArchiveLessonStatus.LessonNotFound,
-                ["Lesson not found."]);
+            return CourseErrors.LessonNotFound(command.LessonId);
         }
 
         var archived = await _coursesService.ArchiveLessonAsync(
@@ -85,9 +81,7 @@ public class ArchiveLessonCommandHandler : ICommandHandler<ArchiveLessonCommand,
 
         if (!archived)
         {
-            return new ArchiveLessonResult(
-                ArchiveLessonStatus.LessonNotFound,
-                ["Lesson not found."]);
+            return CourseErrors.LessonNotFound(command.LessonId);
         }
 
         _logger.LogInformation(
@@ -98,8 +92,6 @@ public class ArchiveLessonCommandHandler : ICommandHandler<ArchiveLessonCommand,
             command.ModuleId,
             command.LessonId);
 
-        return new ArchiveLessonResult(
-            ArchiveLessonStatus.Success,
-            []);
+        return Result.Success;
     }
 }

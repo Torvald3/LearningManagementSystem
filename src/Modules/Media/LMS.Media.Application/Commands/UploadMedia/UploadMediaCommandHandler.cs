@@ -1,4 +1,6 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Media.Application.Errors;
 using LMS.Media.Application.Models;
 using LMS.Media.Core.Configurations;
 using LMS.Media.Core.Services;
@@ -6,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LMS.Media.Application.Commands.UploadMedia;
 
-public class UploadMediaCommandHandler : ICommandHandler<UploadMediaCommand, UploadMediaResult>
+public class UploadMediaCommandHandler : ICommandHandler<UploadMediaCommand, MediaFile>
 {
     private readonly IMediaService _mediaService;
     private readonly IMediaStorage _mediaStorage;
@@ -25,34 +27,26 @@ public class UploadMediaCommandHandler : ICommandHandler<UploadMediaCommand, Upl
         _logger = logger;
     }
 
-    public async Task<UploadMediaResult> HandleAsync(
+    public async Task<Result<MediaFile>> HandleAsync(
         UploadMediaCommand command,
         CancellationToken cancellationToken = default)
     {
         if (command.EntityId == Guid.Empty)
         {
-            return new UploadMediaResult(
-                UploadMediaStatus.InvalidEntityId,
-                null,
-                ["EntityId is required."]);
+            return MediaErrors.EntityIdRequired;
         }
 
         if (command.Size <= 0)
         {
-            return new UploadMediaResult(
-                UploadMediaStatus.EmptyFile,
-                null,
-                ["File is empty."]);
+            return MediaErrors.FileEmpty;
         }
 
-        var maxFileSizeBytes = (long)Math.Max(1, _storageConfiguration.MaxFileSizeMb) * 1024 * 1024;
+        var maxFileSizeMb = Math.Max(1, _storageConfiguration.MaxFileSizeMb);
+        var maxFileSizeBytes = (long)maxFileSizeMb * 1024 * 1024;
 
         if (command.Size > maxFileSizeBytes)
         {
-            return new UploadMediaResult(
-                UploadMediaStatus.FileTooLarge,
-                null,
-                [$"File size must not exceed {_storageConfiguration.MaxFileSizeMb} MB."]);
+            return MediaErrors.FileTooLarge(maxFileSizeMb);
         }
 
         var now = DateTime.UtcNow;
@@ -94,18 +88,15 @@ public class UploadMediaCommandHandler : ICommandHandler<UploadMediaCommand, Upl
             mediaFile.EntityType,
             mediaFile.EntityId);
 
-        return new UploadMediaResult(
-            UploadMediaStatus.Success,
-            new MediaFile(
-                mediaFile.Id,
-                mediaFile.EntityType,
-                mediaFile.EntityId,
-                mediaFile.ObjectKey,
-                mediaFile.OriginalFileName,
-                mediaFile.ContentType,
-                mediaFile.Size,
-                mediaFile.CreatedAt),
-            []);
+        return new MediaFile(
+            mediaFile.Id,
+            mediaFile.EntityType,
+            mediaFile.EntityId,
+            mediaFile.ObjectKey,
+            mediaFile.OriginalFileName,
+            mediaFile.ContentType,
+            mediaFile.Size,
+            mediaFile.CreatedAt);
     }
 
     private static string SanitizeFileName(string fileName)

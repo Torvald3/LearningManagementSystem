@@ -19,16 +19,12 @@ public static class ArchiveCourseModuleEndpoint
     private static async Task<IResult> ArchiveCourseModule(
         Guid courseId,
         Guid moduleId,
-        ICommandHandler<ArchiveCourseModuleCommand, ArchiveCourseModuleResult> handler)
+        ICommandHandler<ArchiveCourseModuleCommand> handler)
     {
         var result = await handler.HandleAsync(new ArchiveCourseModuleCommand(courseId, moduleId));
 
-        return result.Status switch
-        {
-            ArchiveCourseModuleStatus.CourseNotFound => Results.NotFound(result.Errors),
-            ArchiveCourseModuleStatus.ModuleNotFound => Results.NotFound(result.Errors),
-            ArchiveCourseModuleStatus.Success => Results.NoContent(),
-            _ => Results.Problem("Unexpected error while archiving course module.")
-        };
+        return result.IsSuccess
+            ? Results.NoContent()
+            : CourseEndpointResults.FromError(result.Error);
     }
 }

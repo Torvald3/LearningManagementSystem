@@ -20,14 +20,16 @@ public static class GetMediaUrlEndpoint
 
     private static async Task<IResult> GetMediaUrl(
         Guid mediaId,
-        IQueryHandler<GetMediaUrlQuery, MediaReadUrl?> handler)
+        IQueryHandler<GetMediaUrlQuery, MediaReadUrl> handler)
     {
-        var mediaUrl = await handler.Handle(new GetMediaUrlQuery(mediaId));
+        var result = await handler.Handle(new GetMediaUrlQuery(mediaId));
 
-        if (mediaUrl is null)
+        if (result.IsFailure)
         {
             return Results.NotFound();
         }
+
+        var mediaUrl = result.Value;
 
         return Results.Ok(new MediaUrlResponse(
             mediaUrl.Url,

@@ -1,11 +1,12 @@
-﻿using LMS.Common.CQRS;
+using LMS.Common.CQRS;
+using LMS.Common.Results;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Courses.Application.Queries.GetCourses;
 
-public class GetCoursesQueryHandler : IQueryHandler<GetCoursesQuery, IReadOnlyList<Course>>
+public class GetCoursesQueryHandler : IQueryHandler<GetCoursesQuery, List<Course>>
 {
     private readonly ICoursesService _coursesService;
     private readonly ILogger<GetCoursesQueryHandler> _logger;
@@ -18,7 +19,7 @@ public class GetCoursesQueryHandler : IQueryHandler<GetCoursesQuery, IReadOnlyLi
         _logger = logger;
     }
 
-    public async Task<IReadOnlyList<Course>> Handle(
+    public async Task<Result<List<Course>>> Handle(
         GetCoursesQuery query,
         CancellationToken cancellationToken = default)
     {
@@ -31,7 +32,7 @@ public class GetCoursesQueryHandler : IQueryHandler<GetCoursesQuery, IReadOnlyLi
             "courses.get_all.succeeded",
             courses.Count);
 
-        return courses
+        List<Course> result = courses
             .Select(course => new Course(
                 course.Id,
                 course.AuthorId,
@@ -41,5 +42,7 @@ public class GetCoursesQueryHandler : IQueryHandler<GetCoursesQuery, IReadOnlyLi
                 course.CreatedAt,
                 course.UpdatedAt))
             .ToList();
+
+        return result;
     }
 }

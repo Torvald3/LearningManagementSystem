@@ -1,10 +1,12 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Courses.Application.Errors;
 using LMS.Courses.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Courses.Application.Commands.ArchiveCourseModule;
 
-public class ArchiveCourseModuleCommandHandler : ICommandHandler<ArchiveCourseModuleCommand, ArchiveCourseModuleResult>
+public class ArchiveCourseModuleCommandHandler : ICommandHandler<ArchiveCourseModuleCommand>
 {
     private readonly ICoursesService _coursesService;
     private readonly ILogger<ArchiveCourseModuleCommandHandler> _logger;
@@ -17,7 +19,7 @@ public class ArchiveCourseModuleCommandHandler : ICommandHandler<ArchiveCourseMo
         _logger = logger;
     }
 
-    public async Task<ArchiveCourseModuleResult> HandleAsync(
+    public async Task<Result> HandleAsync(
         ArchiveCourseModuleCommand command,
         CancellationToken cancellationToken = default)
     {
@@ -32,9 +34,7 @@ public class ArchiveCourseModuleCommandHandler : ICommandHandler<ArchiveCourseMo
                 "course_module.archive.course_not_found",
                 command.CourseId);
 
-            return new ArchiveCourseModuleResult(
-                ArchiveCourseModuleStatus.CourseNotFound,
-                ["Course not found."]);
+            return CourseErrors.CourseNotFound(command.CourseId);
         }
 
         var module = await _coursesService.GetCourseModuleAsync(
@@ -52,9 +52,7 @@ public class ArchiveCourseModuleCommandHandler : ICommandHandler<ArchiveCourseMo
                 command.CourseId,
                 command.ModuleId);
 
-            return new ArchiveCourseModuleResult(
-                ArchiveCourseModuleStatus.ModuleNotFound,
-                ["Module not found."]);
+            return CourseErrors.ModuleNotFound(command.ModuleId);
         }
 
         var archived = await _coursesService.ArchiveCourseModuleAsync(
@@ -65,9 +63,7 @@ public class ArchiveCourseModuleCommandHandler : ICommandHandler<ArchiveCourseMo
 
         if (!archived)
         {
-            return new ArchiveCourseModuleResult(
-                ArchiveCourseModuleStatus.ModuleNotFound,
-                ["Module not found."]);
+            return CourseErrors.ModuleNotFound(command.ModuleId);
         }
 
         _logger.LogInformation(
@@ -78,8 +74,6 @@ public class ArchiveCourseModuleCommandHandler : ICommandHandler<ArchiveCourseMo
             command.CourseId,
             command.ModuleId);
 
-        return new ArchiveCourseModuleResult(
-            ArchiveCourseModuleStatus.Success,
-            []);
+        return Result.Success;
     }
 }

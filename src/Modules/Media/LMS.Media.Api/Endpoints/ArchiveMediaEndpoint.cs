@@ -1,4 +1,5 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
 using LMS.Media.Application.Commands.ArchiveMedia;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -18,15 +19,20 @@ public static class ArchiveMediaEndpoint
 
     private static async Task<IResult> ArchiveMedia(
         Guid mediaId,
-        ICommandHandler<ArchiveMediaCommand, ArchiveMediaResult> handler)
+        ICommandHandler<ArchiveMediaCommand> handler)
     {
         var result = await handler.HandleAsync(new ArchiveMediaCommand(mediaId));
 
-        return result.Status switch
+        if (result.IsSuccess)
         {
-            ArchiveMediaStatus.NotFound => Results.NotFound(result.Errors),
-            ArchiveMediaStatus.Success => Results.NoContent(),
-            _ => Results.Problem("Unexpected error while archiving media.")
-        };
+            return Results.NoContent();
+        }
+
+        if (result.Error.Type == ErrorType.NotFound)
+        {
+            return Results.NotFound(result.Error.Message);
+        }
+
+        return Results.Problem("Unexpected error while archiving media.");
     }
 }

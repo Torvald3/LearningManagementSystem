@@ -23,10 +23,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{1309
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Users", "Users", "{4CA896F1-3F47-4E19-92B6-A555AA410D4F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Courses", "Courses", "{D62E3037-24BD-49FF-910D-3CF180422D2C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Interactions", "Interactions", "{1F78D86B-9183-4655-8C7C-BA7EDF2D0D47}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LMS.Users.Api", "src\Modules\Users\LMS.Users.Api\LMS.Users.Api.csproj", "{17C13EF4-C931-479A-96A2-913C2E5920F3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LMS.Users.Core", "src\Modules\Users\LMS.Users.Core\LMS.Users.Core.csproj", "{63B93B20-7E98-4B62-939E-ED75CB1E0BDD}"

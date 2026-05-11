@@ -12,7 +12,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ICommandHandler<RegisterUserCommand, RegisterUserResult>, RegisterUserCommandHandler>();
         services.AddScoped<ICommandHandler<LoginUserCommand, LoginUserResult>, LoginUserCommandHandler>();
-        services.AddScoped<ICommandHandler<ConfirmEmailCommand, ConfirmEmailResult>, ConfirmEmailCommandHandler>();
+        services.AddScoped<ICommandHandler<ConfirmEmailCommand>, ConfirmEmailCommandHandler>();
         
         return services;
     }

@@ -2,6 +2,7 @@ using FluentValidation;
 using LMS.Common.CQRS;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Commands.UpdateLesson;
+using LMS.Courses.Application.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -24,7 +25,7 @@ public static class UpdateLessonEndpoint
         Guid lessonId,
         UpdateLessonRequest request,
         IValidator<UpdateLessonRequest> validator,
-        ICommandHandler<UpdateLessonCommand, UpdateLessonResult> handler)
+        ICommandHandler<UpdateLessonCommand, Lesson> handler)
     {
         var validationResult = await validator.ValidateAsync(request);
 
@@ -42,22 +43,21 @@ public static class UpdateLessonEndpoint
                 request.Content,
                 request.Position));
 
-        return result.Status switch
+        if (result.IsFailure)
         {
-            UpdateLessonStatus.CourseNotFound => Results.NotFound(result.Errors),
-            UpdateLessonStatus.ModuleNotFound => Results.NotFound(result.Errors),
-            UpdateLessonStatus.LessonNotFound => Results.NotFound(result.Errors),
-            UpdateLessonStatus.InvalidPosition => Results.BadRequest(result.Errors),
-            UpdateLessonStatus.Success => Results.Ok(
-                new LessonResponse(
-                    result.Lesson!.Id,
-                    result.Lesson.ModuleId,
-                    result.Lesson.Title,
-                    result.Lesson.Content,
-                    result.Lesson.Position,
-                    result.Lesson.CreatedAt,
-                    result.Lesson.UpdatedAt)),
-            _ => Results.Problem("Unexpected error while updating lesson.")
-        };
+            return CourseEndpointResults.FromError(result.Error);
+        }
+
+        var lesson = result.Value;
+
+        return Results.Ok(
+            new LessonResponse(
+                lesson.Id,
+                lesson.ModuleId,
+                lesson.Title,
+                lesson.Content,
+                lesson.Position,
+                lesson.CreatedAt,
+                lesson.UpdatedAt));
     }
 }

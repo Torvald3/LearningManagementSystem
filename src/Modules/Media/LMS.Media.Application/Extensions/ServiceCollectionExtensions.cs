@@ -13,12 +13,12 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddScoped<ICommandHandler<UploadMediaCommand, UploadMediaResult>, UploadMediaCommandHandler>();
-        services.AddScoped<ICommandHandler<ArchiveMediaCommand, ArchiveMediaResult>, ArchiveMediaCommandHandler>();
+        services.AddScoped<ICommandHandler<UploadMediaCommand, MediaFile>, UploadMediaCommandHandler>();
+        services.AddScoped<ICommandHandler<ArchiveMediaCommand>, ArchiveMediaCommandHandler>();
 
-        services.AddScoped<IQueryHandler<GetMediaQuery, MediaFile?>, GetMediaQueryHandler>();
-        services.AddScoped<IQueryHandler<GetMediaByEntityQuery, IReadOnlyList<MediaFile>>, GetMediaByEntityQueryHandler>();
-        services.AddScoped<IQueryHandler<GetMediaUrlQuery, MediaReadUrl?>, GetMediaUrlQueryHandler>();
+        services.AddScoped<IQueryHandler<GetMediaQuery, MediaFile>, GetMediaQueryHandler>();
+        services.AddScoped<IQueryHandler<GetMediaByEntityQuery, List<MediaFile>>, GetMediaByEntityQueryHandler>();
+        services.AddScoped<IQueryHandler<GetMediaUrlQuery, MediaReadUrl>, GetMediaUrlQueryHandler>();
 
         return services;
     }

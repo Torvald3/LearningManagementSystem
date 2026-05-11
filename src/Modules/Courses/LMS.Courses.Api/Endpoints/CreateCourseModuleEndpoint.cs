@@ -2,6 +2,7 @@ using FluentValidation;
 using LMS.Common.CQRS;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Commands.CreateCourseModule;
+using LMS.Courses.Application.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -22,7 +23,7 @@ public static class CreateCourseModuleEndpoint
         Guid courseId,
         CreateCourseModuleRequest request,
         IValidator<CreateCourseModuleRequest> validator,
-        ICommandHandler<CreateCourseModuleCommand, CreateCourseModuleResult> handler)
+        ICommandHandler<CreateCourseModuleCommand, CourseModule> handler)
     {
         var validationResult = await validator.ValidateAsync(request);
 
@@ -37,20 +38,22 @@ public static class CreateCourseModuleEndpoint
                 request.Title,
                 request.Description));
 
-        return result.Status switch
+        if (result.IsFailure)
         {
-            CreateCourseModuleStatus.CourseNotFound => Results.NotFound(result.Errors),
-            CreateCourseModuleStatus.Success => Results.Created(
-                $"/api/courses/{courseId}/modules/{result.Module!.Id}",
-                new CourseModuleResponse(
-                    result.Module.Id,
-                    result.Module.CourseId,
-                    result.Module.Title,
-                    result.Module.Description,
-                    result.Module.Position,
-                    result.Module.CreatedAt,
-                    result.Module.UpdatedAt)),
-            _ => Results.Problem("Unexpected error while creating course module.")
-        };
+            return CourseEndpointResults.FromError(result.Error);
+        }
+
+        var module = result.Value;
+
+        return Results.Created(
+            $"/api/courses/{courseId}/modules/{module.Id}",
+            new CourseModuleResponse(
+                module.Id,
+                module.CourseId,
+                module.Title,
+                module.Description,
+                module.Position,
+                module.CreatedAt,
+                module.UpdatedAt));
     }
 }
