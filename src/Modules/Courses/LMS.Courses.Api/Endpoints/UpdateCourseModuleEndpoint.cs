@@ -2,6 +2,7 @@ using FluentValidation;
 using LMS.Common.CQRS;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Commands.UpdateCourseModule;
+using LMS.Courses.Application.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -23,7 +24,7 @@ public static class UpdateCourseModuleEndpoint
         Guid moduleId,
         UpdateCourseModuleRequest request,
         IValidator<UpdateCourseModuleRequest> validator,
-        ICommandHandler<UpdateCourseModuleCommand, UpdateCourseModuleResult> handler)
+        ICommandHandler<UpdateCourseModuleCommand, CourseModule> handler)
     {
         var validationResult = await validator.ValidateAsync(request);
 
@@ -40,21 +41,21 @@ public static class UpdateCourseModuleEndpoint
                 request.Description,
                 request.Position));
 
-        return result.Status switch
+        if (result.IsFailure)
         {
-            UpdateCourseModuleStatus.CourseNotFound => Results.NotFound(result.Errors),
-            UpdateCourseModuleStatus.ModuleNotFound => Results.NotFound(result.Errors),
-            UpdateCourseModuleStatus.InvalidPosition => Results.BadRequest(result.Errors),
-            UpdateCourseModuleStatus.Success => Results.Ok(
-                new CourseModuleResponse(
-                    result.Module!.Id,
-                    result.Module.CourseId,
-                    result.Module.Title,
-                    result.Module.Description,
-                    result.Module.Position,
-                    result.Module.CreatedAt,
-                    result.Module.UpdatedAt)),
-            _ => Results.Problem("Unexpected error while updating course module.")
-        };
+            return CourseEndpointResults.FromError(result.Error);
+        }
+
+        var module = result.Value;
+
+        return Results.Ok(
+            new CourseModuleResponse(
+                module.Id,
+                module.CourseId,
+                module.Title,
+                module.Description,
+                module.Position,
+                module.CreatedAt,
+                module.UpdatedAt));
     }
 }

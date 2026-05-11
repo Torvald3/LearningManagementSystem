@@ -21,16 +21,16 @@ public static class GetLessonsEndpoint
     private static async Task<IResult> GetLessons(
         Guid courseId,
         Guid moduleId,
-        IQueryHandler<GetLessonsQuery, IReadOnlyList<LessonSummary>?> handler)
+        IQueryHandler<GetLessonsQuery, IReadOnlyList<LessonSummary>> handler)
     {
-        var lessons = await handler.Handle(new GetLessonsQuery(courseId, moduleId));
+        var result = await handler.Handle(new GetLessonsQuery(courseId, moduleId));
 
-        if (lessons is null)
+        if (result.IsFailure)
         {
             return Results.NotFound();
         }
 
-        var response = lessons
+        var response = result.Value
             .Select(lesson => new LessonSummaryResponse(
                 lesson.Id,
                 lesson.ModuleId,

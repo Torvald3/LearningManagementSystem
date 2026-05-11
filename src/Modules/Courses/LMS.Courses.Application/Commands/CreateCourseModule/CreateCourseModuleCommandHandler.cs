@@ -1,11 +1,13 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Courses.Application.Errors;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Courses.Application.Commands.CreateCourseModule;
 
-public class CreateCourseModuleCommandHandler : ICommandHandler<CreateCourseModuleCommand, CreateCourseModuleResult>
+public class CreateCourseModuleCommandHandler : ICommandHandler<CreateCourseModuleCommand, CourseModule>
 {
     private readonly ICoursesService _coursesService;
     private readonly ILogger<CreateCourseModuleCommandHandler> _logger;
@@ -18,7 +20,7 @@ public class CreateCourseModuleCommandHandler : ICommandHandler<CreateCourseModu
         _logger = logger;
     }
 
-    public async Task<CreateCourseModuleResult> HandleAsync(
+    public async Task<Result<CourseModule>> HandleAsync(
         CreateCourseModuleCommand command,
         CancellationToken cancellationToken = default)
     {
@@ -33,10 +35,7 @@ public class CreateCourseModuleCommandHandler : ICommandHandler<CreateCourseModu
                 "course_module.create.course_not_found",
                 command.CourseId);
 
-            return new CreateCourseModuleResult(
-                CreateCourseModuleStatus.CourseNotFound,
-                null,
-                ["Course not found."]);
+            return CourseErrors.CourseNotFound(command.CourseId);
         }
 
         var now = DateTime.UtcNow;
@@ -61,16 +60,13 @@ public class CreateCourseModuleCommandHandler : ICommandHandler<CreateCourseModu
             module.CourseId,
             module.Id);
 
-        return new CreateCourseModuleResult(
-            CreateCourseModuleStatus.Success,
-            new CourseModule(
-                module.Id,
-                module.CourseId,
-                module.Title,
-                module.Description,
-                module.Position,
-                module.CreatedAt,
-                module.UpdatedAt),
-            []);
+        return new CourseModule(
+            module.Id,
+            module.CourseId,
+            module.Title,
+            module.Description,
+            module.Position,
+            module.CreatedAt,
+            module.UpdatedAt);
     }
 }

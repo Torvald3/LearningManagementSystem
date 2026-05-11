@@ -20,17 +20,12 @@ public static class ArchiveLessonEndpoint
         Guid courseId,
         Guid moduleId,
         Guid lessonId,
-        ICommandHandler<ArchiveLessonCommand, ArchiveLessonResult> handler)
+        ICommandHandler<ArchiveLessonCommand> handler)
     {
         var result = await handler.HandleAsync(new ArchiveLessonCommand(courseId, moduleId, lessonId));
 
-        return result.Status switch
-        {
-            ArchiveLessonStatus.CourseNotFound => Results.NotFound(result.Errors),
-            ArchiveLessonStatus.ModuleNotFound => Results.NotFound(result.Errors),
-            ArchiveLessonStatus.LessonNotFound => Results.NotFound(result.Errors),
-            ArchiveLessonStatus.Success => Results.NoContent(),
-            _ => Results.Problem("Unexpected error while archiving lesson.")
-        };
+        return result.IsSuccess
+            ? Results.NoContent()
+            : CourseEndpointResults.FromError(result.Error);
     }
 }

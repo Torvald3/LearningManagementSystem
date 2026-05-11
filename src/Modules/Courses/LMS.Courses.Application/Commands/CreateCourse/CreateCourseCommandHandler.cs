@@ -1,5 +1,7 @@
-﻿using LMS.Common.CQRS;
+using LMS.Common.CQRS;
 using LMS.Common.Observability.Metrics;
+using LMS.Common.Results;
+using LMS.Courses.Application.Errors;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Core.Services;
 using LMS.Users.Contracts.Services;
@@ -7,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LMS.Courses.Application.Commands.CreateCourse;
 
-public class CreateCourseCommandHandler : ICommandHandler<CreateCourseCommand, CreateCourseResult>
+public class CreateCourseCommandHandler : ICommandHandler<CreateCourseCommand, Course>
 {
     private readonly ICoursesService _coursesService;
     private readonly IUsersModuleService _usersModuleService;
@@ -26,16 +28,13 @@ public class CreateCourseCommandHandler : ICommandHandler<CreateCourseCommand, C
         _metrics = metrics;
     }
 
-    public async Task<CreateCourseResult> HandleAsync(CreateCourseCommand command, CancellationToken cancellationToken = default)
+    public async Task<Result<Course>> HandleAsync(CreateCourseCommand command, CancellationToken cancellationToken = default)
     {
         var authorExists = await _usersModuleService.UserExistsAsync(command.AuthorId);
 
         if (!authorExists)
         {
-            return new CreateCourseResult(
-                CreateCourseStatus.AuthorNotFound,
-                null,
-                ["Author does not exist."]);
+            return CourseErrors.AuthorNotFound(command.AuthorId);
         }
 
         var now = DateTime.UtcNow;
@@ -63,9 +62,13 @@ public class CreateCourseCommandHandler : ICommandHandler<CreateCourseCommand, C
             course.Id,
             course.AuthorId);
 
-        return new CreateCourseResult(
-            CreateCourseStatus.Success,
-            new Course(course.Id, course.AuthorId, course.Title, course.Theme, course.Description, course.CreatedAt, course.UpdatedAt),
-            []);
+        return new Course(
+            course.Id,
+            course.AuthorId,
+            course.Title,
+            course.Theme,
+            course.Description,
+            course.CreatedAt,
+            course.UpdatedAt);
     }
 }

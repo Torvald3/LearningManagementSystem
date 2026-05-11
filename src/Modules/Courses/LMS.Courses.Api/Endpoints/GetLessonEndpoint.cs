@@ -22,14 +22,16 @@ public static class GetLessonEndpoint
         Guid courseId,
         Guid moduleId,
         Guid lessonId,
-        IQueryHandler<GetLessonQuery, Lesson?> handler)
+        IQueryHandler<GetLessonQuery, Lesson> handler)
     {
-        var lesson = await handler.Handle(new GetLessonQuery(courseId, moduleId, lessonId));
+        var result = await handler.Handle(new GetLessonQuery(courseId, moduleId, lessonId));
 
-        if (lesson is null)
+        if (result.IsFailure)
         {
             return Results.NotFound();
         }
+
+        var lesson = result.Value;
 
         return Results.Ok(new LessonResponse(
             lesson.Id,

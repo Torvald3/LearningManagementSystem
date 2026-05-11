@@ -1,11 +1,13 @@
-﻿using LMS.Common.CQRS;
+using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Courses.Application.Errors;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Courses.Application.Commands.UpdateCourse;
 
-public class UpdateCourseCommandHandler : ICommandHandler<UpdateCourseCommand, UpdateCourseResult>
+public class UpdateCourseCommandHandler : ICommandHandler<UpdateCourseCommand, Course>
 {
     private readonly ICoursesService _coursesService;
     private readonly ILogger<UpdateCourseCommandHandler> _logger;
@@ -18,7 +20,7 @@ public class UpdateCourseCommandHandler : ICommandHandler<UpdateCourseCommand, U
         _logger = logger;
     }
 
-    public async Task<UpdateCourseResult> HandleAsync(
+    public async Task<Result<Course>> HandleAsync(
         UpdateCourseCommand command,
         CancellationToken cancellationToken = default)
     {
@@ -33,10 +35,7 @@ public class UpdateCourseCommandHandler : ICommandHandler<UpdateCourseCommand, U
                 "course.update.not_found",
                 command.CourseId);
 
-            return new UpdateCourseResult(
-                UpdateCourseStatus.NotFound,
-                null,
-                ["Course not found."]);
+            return CourseErrors.CourseNotFound(command.CourseId);
         }
 
         var updatedCourse = new Core.Models.Course
@@ -59,16 +58,13 @@ public class UpdateCourseCommandHandler : ICommandHandler<UpdateCourseCommand, U
             "course.update.succeeded",
             command.CourseId);
 
-        return new UpdateCourseResult(
-            UpdateCourseStatus.Success,
-            new Course(
-                updatedCourse.Id,
-                updatedCourse.AuthorId,
-                updatedCourse.Title,
-                updatedCourse.Theme,
-                updatedCourse.Description,
-                updatedCourse.CreatedAt,
-                updatedCourse.UpdatedAt),
-            []);
+        return new Course(
+            updatedCourse.Id,
+            updatedCourse.AuthorId,
+            updatedCourse.Title,
+            updatedCourse.Theme,
+            updatedCourse.Description,
+            updatedCourse.CreatedAt,
+            updatedCourse.UpdatedAt);
     }
 }

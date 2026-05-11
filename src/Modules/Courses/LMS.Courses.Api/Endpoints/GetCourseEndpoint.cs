@@ -1,4 +1,4 @@
-﻿using LMS.Common.CQRS;
+using LMS.Common.CQRS;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Application.Queries.GetCourse;
@@ -20,14 +20,16 @@ public static class GetCourseEndpoint
 
     private static async Task<IResult> GetCourse(
         Guid id,
-        IQueryHandler<GetCourseQuery, Course?> handler)
+        IQueryHandler<GetCourseQuery, Course> handler)
     {
-        var course = await handler.Handle(new GetCourseQuery(id));
+        var result = await handler.Handle(new GetCourseQuery(id));
 
-        if (course is null)
+        if (result.IsFailure)
         {
             return Results.NotFound();
         }
+
+        var course = result.Value;
 
         return Results.Ok(new CourseResponse(
             course.Id,

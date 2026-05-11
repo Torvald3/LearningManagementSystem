@@ -1,11 +1,13 @@
-﻿using LMS.Common.CQRS;
+using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Courses.Application.Errors;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Courses.Application.Queries.GetCourse;
 
-public class GetCourseQueryHandler : IQueryHandler<GetCourseQuery, Course?>
+public class GetCourseQueryHandler : IQueryHandler<GetCourseQuery, Course>
 {
     private readonly ICoursesService _coursesService;
     private readonly ILogger<GetCourseQueryHandler> _logger;
@@ -18,7 +20,7 @@ public class GetCourseQueryHandler : IQueryHandler<GetCourseQuery, Course?>
         _logger = logger;
     }
 
-    public async Task<Course?> Handle(GetCourseQuery query, CancellationToken cancellationToken = default)
+    public async Task<Result<Course>> Handle(GetCourseQuery query, CancellationToken cancellationToken = default)
     {
         var course = await _coursesService.GetCourseAsync(query.CourseId, cancellationToken);
 
@@ -31,7 +33,7 @@ public class GetCourseQueryHandler : IQueryHandler<GetCourseQuery, Course?>
                 "course.get.not_found",
                 query.CourseId);
 
-            return null;
+            return CourseErrors.CourseNotFound(query.CourseId);
         }
 
         _logger.LogInformation(

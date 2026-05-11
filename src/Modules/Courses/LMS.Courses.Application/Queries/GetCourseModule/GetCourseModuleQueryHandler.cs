@@ -1,11 +1,13 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Courses.Application.Errors;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Courses.Application.Queries.GetCourseModule;
 
-public class GetCourseModuleQueryHandler : IQueryHandler<GetCourseModuleQuery, CourseModule?>
+public class GetCourseModuleQueryHandler : IQueryHandler<GetCourseModuleQuery, CourseModule>
 {
     private readonly ICoursesService _coursesService;
     private readonly ILogger<GetCourseModuleQueryHandler> _logger;
@@ -18,7 +20,7 @@ public class GetCourseModuleQueryHandler : IQueryHandler<GetCourseModuleQuery, C
         _logger = logger;
     }
 
-    public async Task<CourseModule?> Handle(GetCourseModuleQuery query, CancellationToken cancellationToken = default)
+    public async Task<Result<CourseModule>> Handle(GetCourseModuleQuery query, CancellationToken cancellationToken = default)
     {
         var module = await _coursesService.GetCourseModuleAsync(
             query.CourseId,
@@ -35,7 +37,7 @@ public class GetCourseModuleQueryHandler : IQueryHandler<GetCourseModuleQuery, C
                 query.CourseId,
                 query.ModuleId);
 
-            return null;
+            return CourseErrors.ModuleNotFound(query.ModuleId);
         }
 
         _logger.LogInformation(

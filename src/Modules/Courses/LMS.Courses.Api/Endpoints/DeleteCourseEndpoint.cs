@@ -1,4 +1,4 @@
-﻿using LMS.Common.CQRS;
+using LMS.Common.CQRS;
 using LMS.Courses.Application.Commands.DeleteCourse;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -18,15 +18,12 @@ public static class DeleteCourseEndpoint
 
     private static async Task<IResult> DeleteCourse(
         Guid id,
-        ICommandHandler<DeleteCourseCommand, bool> handler)
+        ICommandHandler<DeleteCourseCommand> handler)
     {
         var result = await handler.HandleAsync(new DeleteCourseCommand(id));
 
-        if (!result)
-        {
-            return Results.NotFound();
-        }
-
-        return Results.NoContent();
+        return result.IsSuccess
+            ? Results.NoContent()
+            : Results.NotFound();
     }
 }

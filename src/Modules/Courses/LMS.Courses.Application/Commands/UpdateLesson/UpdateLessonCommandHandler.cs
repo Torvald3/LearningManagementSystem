@@ -1,11 +1,13 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Courses.Application.Errors;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Courses.Application.Commands.UpdateLesson;
 
-public class UpdateLessonCommandHandler : ICommandHandler<UpdateLessonCommand, UpdateLessonResult>
+public class UpdateLessonCommandHandler : ICommandHandler<UpdateLessonCommand, Lesson>
 {
     private readonly ICoursesService _coursesService;
     private readonly ILogger<UpdateLessonCommandHandler> _logger;
@@ -18,7 +20,7 @@ public class UpdateLessonCommandHandler : ICommandHandler<UpdateLessonCommand, U
         _logger = logger;
     }
 
-    public async Task<UpdateLessonResult> HandleAsync(
+    public async Task<Result<Lesson>> HandleAsync(
         UpdateLessonCommand command,
         CancellationToken cancellationToken = default)
     {
@@ -33,10 +35,7 @@ public class UpdateLessonCommandHandler : ICommandHandler<UpdateLessonCommand, U
                 "lesson.update.course_not_found",
                 command.CourseId);
 
-            return new UpdateLessonResult(
-                UpdateLessonStatus.CourseNotFound,
-                null,
-                ["Course not found."]);
+            return CourseErrors.CourseNotFound(command.CourseId);
         }
 
         var module = await _coursesService.GetCourseModuleAsync(
@@ -54,10 +53,7 @@ public class UpdateLessonCommandHandler : ICommandHandler<UpdateLessonCommand, U
                 command.CourseId,
                 command.ModuleId);
 
-            return new UpdateLessonResult(
-                UpdateLessonStatus.ModuleNotFound,
-                null,
-                ["Module not found."]);
+            return CourseErrors.ModuleNotFound(command.ModuleId);
         }
 
         var existingLesson = await _coursesService.GetLessonAsync(
@@ -75,20 +71,14 @@ public class UpdateLessonCommandHandler : ICommandHandler<UpdateLessonCommand, U
                 command.ModuleId,
                 command.LessonId);
 
-            return new UpdateLessonResult(
-                UpdateLessonStatus.LessonNotFound,
-                null,
-                ["Lesson not found."]);
+            return CourseErrors.LessonNotFound(command.LessonId);
         }
 
         var lessonsCount = await _coursesService.GetLessonsCountAsync(command.ModuleId, cancellationToken);
 
         if (command.Position < 1 || command.Position > lessonsCount)
         {
-            return new UpdateLessonResult(
-                UpdateLessonStatus.InvalidPosition,
-                null,
-                [$"Position must be between 1 and {lessonsCount}."]);
+            return CourseErrors.InvalidPosition(lessonsCount);
         }
 
         var updatedLesson = new LMS.Courses.Core.Models.Lesson
@@ -106,10 +96,7 @@ public class UpdateLessonCommandHandler : ICommandHandler<UpdateLessonCommand, U
 
         if (!updated)
         {
-            return new UpdateLessonResult(
-                UpdateLessonStatus.LessonNotFound,
-                null,
-                ["Lesson not found."]);
+            return CourseErrors.LessonNotFound(command.LessonId);
         }
 
         _logger.LogInformation(
@@ -121,16 +108,13 @@ public class UpdateLessonCommandHandler : ICommandHandler<UpdateLessonCommand, U
             updatedLesson.Id,
             updatedLesson.Position);
 
-        return new UpdateLessonResult(
-            UpdateLessonStatus.Success,
-            new Lesson(
-                updatedLesson.Id,
-                updatedLesson.ModuleId,
-                updatedLesson.Title,
-                updatedLesson.Content,
-                updatedLesson.Position,
-                updatedLesson.CreatedAt,
-                updatedLesson.UpdatedAt),
-            []);
+        return new Lesson(
+            updatedLesson.Id,
+            updatedLesson.ModuleId,
+            updatedLesson.Title,
+            updatedLesson.Content,
+            updatedLesson.Position,
+            updatedLesson.CreatedAt,
+            updatedLesson.UpdatedAt);
     }
 }

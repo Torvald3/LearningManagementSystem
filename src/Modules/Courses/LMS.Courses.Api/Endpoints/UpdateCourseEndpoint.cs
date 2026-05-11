@@ -1,7 +1,8 @@
-﻿using FluentValidation;
+using FluentValidation;
 using LMS.Common.CQRS;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Commands.UpdateCourse;
+using LMS.Courses.Application.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -22,7 +23,7 @@ public static class UpdateCourseEndpoint
         Guid id,
         UpdateCourseRequest request,
         IValidator<UpdateCourseRequest> validator,
-        ICommandHandler<UpdateCourseCommand, UpdateCourseResult> handler)
+        ICommandHandler<UpdateCourseCommand, Course> handler)
     {
         var validationResult = validator.Validate(request);
         if (!validationResult.IsValid)
@@ -32,19 +33,21 @@ public static class UpdateCourseEndpoint
 
         var result = await handler.HandleAsync(new UpdateCourseCommand(id, request.Title, request.Theme, request.Description));
 
-        return result.Status switch
+        if (result.IsFailure)
         {
-            UpdateCourseStatus.NotFound => Results.NotFound(result.Errors),
-            UpdateCourseStatus.Success => Results.Ok(
-                new CourseResponse(
-                    result.Course!.Id,
-                    result.Course.AuthorId,
-                    result.Course.Title,
-                    result.Course.Theme,
-                    result.Course.Description,
-                    result.Course.CreatedAt,
-                    result.Course.UpdatedAt)),
-            _ => Results.Problem("Unexpected error while updating course.")
-        };
+            return CourseEndpointResults.FromError(result.Error);
+        }
+
+        var course = result.Value;
+
+        return Results.Ok(
+            new CourseResponse(
+                course.Id,
+                course.AuthorId,
+                course.Title,
+                course.Theme,
+                course.Description,
+                course.CreatedAt,
+                course.UpdatedAt));
     }
 }

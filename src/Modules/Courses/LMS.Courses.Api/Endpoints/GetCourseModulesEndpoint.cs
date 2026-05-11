@@ -20,16 +20,16 @@ public static class GetCourseModulesEndpoint
 
     private static async Task<IResult> GetCourseModules(
         Guid courseId,
-        IQueryHandler<GetCourseModulesQuery, IReadOnlyList<CourseModuleSummary>?> handler)
+        IQueryHandler<GetCourseModulesQuery, IReadOnlyList<CourseModuleSummary>> handler)
     {
-        var modules = await handler.Handle(new GetCourseModulesQuery(courseId));
+        var result = await handler.Handle(new GetCourseModulesQuery(courseId));
 
-        if (modules is null)
+        if (result.IsFailure)
         {
             return Results.NotFound();
         }
 
-        var response = modules
+        var response = result.Value
             .Select(module => new CourseModuleSummaryResponse(
                 module.Id,
                 module.CourseId,

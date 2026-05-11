@@ -23,22 +23,22 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddScoped<ICommandHandler<CreateCourseCommand, CreateCourseResult>, CreateCourseCommandHandler>();
-        services.AddScoped<ICommandHandler<CreateCourseModuleCommand, CreateCourseModuleResult>, CreateCourseModuleCommandHandler>();
-        services.AddScoped<ICommandHandler<CreateLessonCommand, CreateLessonResult>, CreateLessonCommandHandler>();
-        services.AddScoped<ICommandHandler<ArchiveCourseModuleCommand, ArchiveCourseModuleResult>, ArchiveCourseModuleCommandHandler>();
-        services.AddScoped<ICommandHandler<ArchiveLessonCommand, ArchiveLessonResult>, ArchiveLessonCommandHandler>();
-        services.AddScoped<ICommandHandler<UpdateCourseCommand, UpdateCourseResult>, UpdateCourseCommandHandler>();
-        services.AddScoped<ICommandHandler<UpdateCourseModuleCommand, UpdateCourseModuleResult>, UpdateCourseModuleCommandHandler>();
-        services.AddScoped<ICommandHandler<UpdateLessonCommand, UpdateLessonResult>, UpdateLessonCommandHandler>();
-        services.AddScoped<ICommandHandler<DeleteCourseCommand, bool>, DeleteCourseCommandHandler>();
+        services.AddScoped<ICommandHandler<CreateCourseCommand, Course>, CreateCourseCommandHandler>();
+        services.AddScoped<ICommandHandler<CreateCourseModuleCommand, CourseModule>, CreateCourseModuleCommandHandler>();
+        services.AddScoped<ICommandHandler<CreateLessonCommand, Lesson>, CreateLessonCommandHandler>();
+        services.AddScoped<ICommandHandler<ArchiveCourseModuleCommand>, ArchiveCourseModuleCommandHandler>();
+        services.AddScoped<ICommandHandler<ArchiveLessonCommand>, ArchiveLessonCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateCourseCommand, Course>, UpdateCourseCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateCourseModuleCommand, CourseModule>, UpdateCourseModuleCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateLessonCommand, Lesson>, UpdateLessonCommandHandler>();
+        services.AddScoped<ICommandHandler<DeleteCourseCommand>, DeleteCourseCommandHandler>();
 
-        services.AddScoped<IQueryHandler<GetCourseQuery, Course?>, GetCourseQueryHandler>();
-        services.AddScoped<IQueryHandler<GetCourseModuleQuery, CourseModule?>, GetCourseModuleQueryHandler>();
-        services.AddScoped<IQueryHandler<GetCourseModulesQuery, IReadOnlyList<CourseModuleSummary>?>, GetCourseModulesQueryHandler>();
-        services.AddScoped<IQueryHandler<GetCoursesQuery, IReadOnlyList<Course>>, GetCoursesQueryHandler>();
-        services.AddScoped<IQueryHandler<GetLessonQuery, Lesson?>, GetLessonQueryHandler>();
-        services.AddScoped<IQueryHandler<GetLessonsQuery, IReadOnlyList<LessonSummary>?>, GetLessonsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetCourseQuery, Course>, GetCourseQueryHandler>();
+        services.AddScoped<IQueryHandler<GetCourseModuleQuery, CourseModule>, GetCourseModuleQueryHandler>();
+        services.AddScoped<IQueryHandler<GetCourseModulesQuery, List<CourseModuleSummary>>, GetCourseModulesQueryHandler>();
+        services.AddScoped<IQueryHandler<GetCoursesQuery, List<Course>>, GetCoursesQueryHandler>();
+        services.AddScoped<IQueryHandler<GetLessonQuery, Lesson>, GetLessonQueryHandler>();
+        services.AddScoped<IQueryHandler<GetLessonsQuery, List<LessonSummary>>, GetLessonsQueryHandler>();
 
         return services;
     }
