@@ -36,9 +36,15 @@ public static class GetMediaByEntityEndpoint
             return Results.BadRequest(errors);
         }
 
-        var mediaFiles = await handler.Handle(new GetMediaByEntityQuery(parsedEntityType, entityId));
+        var result = await handler.Handle(new GetMediaByEntityQuery(parsedEntityType, entityId));
 
-        var response = mediaFiles
+        if (result.IsFailure)
+        {
+            IEnumerable<string> errors = [result.Error.Message];
+            return Results.BadRequest(errors);
+        }
+
+        var response = result.Value
             .Select(mediaFile => new MediaResponse(
                 mediaFile.Id,
                 mediaFile.EntityType,

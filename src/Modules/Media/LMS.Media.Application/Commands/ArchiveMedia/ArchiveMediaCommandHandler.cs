@@ -1,10 +1,12 @@
 using LMS.Common.CQRS;
+using LMS.Common.Results;
+using LMS.Media.Application.Errors;
 using LMS.Media.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Media.Application.Commands.ArchiveMedia;
 
-public class ArchiveMediaCommandHandler : ICommandHandler<ArchiveMediaCommand, ArchiveMediaResult>
+public class ArchiveMediaCommandHandler : ICommandHandler<ArchiveMediaCommand>
 {
     private readonly IMediaService _mediaService;
     private readonly ILogger<ArchiveMediaCommandHandler> _logger;
@@ -17,7 +19,7 @@ public class ArchiveMediaCommandHandler : ICommandHandler<ArchiveMediaCommand, A
         _logger = logger;
     }
 
-    public async Task<ArchiveMediaResult> HandleAsync(
+    public async Task<Result> HandleAsync(
         ArchiveMediaCommand command,
         CancellationToken cancellationToken = default)
     {
@@ -35,9 +37,7 @@ public class ArchiveMediaCommandHandler : ICommandHandler<ArchiveMediaCommand, A
                 "media.archive.not_found",
                 command.MediaId);
 
-            return new ArchiveMediaResult(
-                ArchiveMediaStatus.NotFound,
-                ["Media file not found."]);
+            return MediaErrors.NotFound(command.MediaId);
         }
 
         _logger.LogInformation(
@@ -47,8 +47,6 @@ public class ArchiveMediaCommandHandler : ICommandHandler<ArchiveMediaCommand, A
             "media.archive.succeeded",
             command.MediaId);
 
-        return new ArchiveMediaResult(
-            ArchiveMediaStatus.Success,
-            []);
+        return Result.Success;
     }
 }

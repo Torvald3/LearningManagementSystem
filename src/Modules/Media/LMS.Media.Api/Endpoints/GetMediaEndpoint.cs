@@ -1,10 +1,10 @@
 using LMS.Common.CQRS;
 using LMS.Media.Api.Models;
-using LMS.Media.Application.Models;
 using LMS.Media.Application.Queries.GetMedia;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using MediaFileModel = LMS.Media.Application.Models.MediaFile;
 
 namespace LMS.Media.Api.Endpoints;
 
@@ -20,14 +20,16 @@ public static class GetMediaEndpoint
 
     private static async Task<IResult> GetMedia(
         Guid mediaId,
-        IQueryHandler<GetMediaQuery, MediaFile?> handler)
+        IQueryHandler<GetMediaQuery, MediaFileModel> handler)
     {
-        var mediaFile = await handler.Handle(new GetMediaQuery(mediaId));
+        var result = await handler.Handle(new GetMediaQuery(mediaId));
 
-        if (mediaFile is null)
+        if (result.IsFailure)
         {
             return Results.NotFound();
         }
+
+        var mediaFile = result.Value;
 
         return Results.Ok(new MediaResponse(
             mediaFile.Id,
