@@ -1,4 +1,5 @@
-﻿using LMS.Common.CQRS;
+using LMS.Common.CQRS;
+using LMS.Common.Results;
 using LMS.Users.Core.Services;
 
 namespace LMS.Users.Application.Queries;
@@ -12,8 +13,10 @@ public class UserExistsQueryHandler : IQueryHandler<UserExistsQuery, bool>
         _usersService = usersService;
     }
 
-    public Task<bool> Handle(UserExistsQuery query, CancellationToken cancellationToken = default)
+    public async Task<Result<bool>> Handle(UserExistsQuery query, CancellationToken cancellationToken = default)
     {
-        return _usersService.UserExistsAsync(query.UserId, cancellationToken);
+        var exists = await _usersService.UserExistsAsync(query.UserId, cancellationToken);
+
+        return exists;
     }
 }

@@ -1,4 +1,5 @@
-﻿using LMS.Common.CQRS;
+using LMS.Common.CQRS;
+using LMS.Common.Results;
 using LMS.Users.Core.Models;
 using LMS.Users.Core.Services;
 
@@ -13,21 +14,20 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand>
         _usersService = usersService;
     }
 
-    public async Task HandleAsync(CreateUserCommand command, CancellationToken cancellationToken = default)
+    public async Task<Result> HandleAsync(CreateUserCommand command, CancellationToken cancellationToken = default)
     {
-        await _usersService.CreateUserAsync(new User()
+        await _usersService.CreateUserAsync(new User
         {
             Id = command.UserId,
-
             AvatarMediaId = null,
-
             Username = command.Username,
-            Contacts = new Contacts()
+            Contacts = new Contacts
             {
                 Email = command.Email
             },
             Bio = null
         });
+
+        return Result.Success;
     }
 }
-
