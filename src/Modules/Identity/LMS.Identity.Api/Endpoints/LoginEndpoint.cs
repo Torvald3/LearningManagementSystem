@@ -1,21 +1,11 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using LMS.Common.CQRS;
-using LMS.Common.Observability.Logging;
-using LMS.Common.Observability.Metrics;
 using LMS.Identity.Api.Models;
 using LMS.Identity.Application.Commands.LoginUser;
-using LMS.Identity.Core.Configurations;
-using LMS.Identity.Core.Models;
+using LMS.Identity.Application.Errors;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace LMS.Identity.Api.Endpoints;
 
@@ -35,16 +25,20 @@ public static class LoginEndpoint
     {
         var result = await commandHandler.HandleAsync(new LoginUserCommand(request.Email, request.Password));
 
-        if (!result.Succeeded)
+        if (result.IsFailure)
         {
-            if (result.Error == LoginError.EmailNotConfirmed)
+            if (result.Error.Code == IdentityErrors.EmailNotConfirmed.Code)
             {
-                return TypedResults.BadRequest("Email is not confirmed.");
+                return TypedResults.BadRequest(result.Error.Message);
             }
 
             return TypedResults.Unauthorized();
         }
 
-        return TypedResults.Ok(new LoginResponse(result.AccessToken!, result.ExpiresAtUtc!.Value));
+        var loginResult = result.Value;
+
+        return TypedResults.Ok(new LoginResponse(
+            loginResult.AccessToken,
+            loginResult.ExpiresAtUtc));
     }
 }

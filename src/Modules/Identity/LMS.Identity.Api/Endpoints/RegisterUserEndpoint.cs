@@ -1,16 +1,10 @@
 ﻿using LMS.Common.CQRS;
-using LMS.Common.Observability.Logging;
 using LMS.Identity.Api.Models;
-using LMS.Identity.Application.Commands;
 using LMS.Identity.Application.Commands.RegisterUser;
-using LMS.Identity.Core.Models;
-using LMS.Identity.Core.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
 
 namespace LMS.Identity.Api.Endpoints;
 
@@ -30,12 +24,17 @@ internal static class RegisterUserEndpoint
     {
         var result = await handler.HandleAsync(new RegisterUserCommand(request.Email, request.Password, request.Username));
 
-        if (!result.Succeeded)
+        if (result.IsFailure)
         {
-            IEnumerable<string> errors = result.Errors;
+            IEnumerable<string> errors = new[] { result.Error.Message };
             return TypedResults.BadRequest(errors);
         }
 
-        return TypedResults.Ok(new RegisterUserResponse(result.UserId!.Value, result.Email!, result.ConfirmationToken));
+        var registerUserResult = result.Value;
+
+        return TypedResults.Ok(new RegisterUserResponse(
+            registerUserResult.UserId,
+            registerUserResult.Email,
+            registerUserResult.ConfirmationToken));
     }
 }
