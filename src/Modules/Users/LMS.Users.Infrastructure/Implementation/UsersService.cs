@@ -37,3 +37,4 @@ public class UsersService : IUsersService
         return await _context.Users.AnyAsync(x => x.Id == userId, cancellationToken);
     }
 }
+
