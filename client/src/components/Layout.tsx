@@ -1,8 +1,36 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { apiJson } from '../api/http'
+import type { UserResponse } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 
 export function Layout() {
-  const { accessToken, logout } = useAuth()
+  const { accessToken, userId, logout } = useAuth()
+  const [username, setUsername] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadUser() {
+      if (!accessToken || !userId) {
+        setUsername(null)
+        return
+      }
+
+      try {
+        const user = await apiJson<UserResponse>(`/api/users/${userId}`, { accessToken })
+        if (!cancelled) setUsername(user.username)
+      } catch {
+        if (!cancelled) setUsername(null)
+      }
+    }
+
+    void loadUser()
+
+    return () => {
+      cancelled = true
+    }
+  }, [accessToken, userId])
 
   return (
     <div className="layout">
@@ -36,9 +64,12 @@ export function Layout() {
             </>
           )}
           {accessToken && (
-            <button type="button" className="btn btn-ghost" onClick={logout}>
-              Вийти
-            </button>
+            <>
+              {username && <span className="nav-user">{username}</span>}
+              <button type="button" className="btn btn-ghost" onClick={logout}>
+                Вийти
+              </button>
+            </>
           )}
         </nav>
       </header>

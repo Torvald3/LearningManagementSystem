@@ -14,6 +14,7 @@ public static class CourseEndpoints
 
         group.MapCreateCourse()
              .MapAddCourseMember()
+             .MapRemoveCourseMember()
              .MapCreateCourseModule()
              .MapCreateLesson()
              .MapUpdateCourse()
