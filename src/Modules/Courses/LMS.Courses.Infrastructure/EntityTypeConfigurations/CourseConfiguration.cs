@@ -29,8 +29,5 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
 
         builder.Property(x => x.UpdatedAt)
                .IsRequired();
-        
-        builder.Property(x => x.AuthorId)
-               .IsRequired();
     }
 }

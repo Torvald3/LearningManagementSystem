@@ -45,7 +45,6 @@ public static class UpdateCourseEndpoint
         return Results.Ok(
             new CourseResponse(
                 course.Id,
-                course.AuthorId,
                 course.Title,
                 course.Theme,
                 course.Description,

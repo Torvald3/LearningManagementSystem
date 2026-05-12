@@ -4,11 +4,6 @@ namespace LMS.Courses.Application.Errors;
 
 public static class CourseErrors
 {
-    public static Error AuthorNotFound(Guid authorId) =>
-        Error.Validation(
-            "courses.author_not_found",
-            $"Author with id {authorId} does not exist.");
-
     public static Error CourseNotFound(Guid courseId) =>
         Error.NotFound(
             "courses.course_not_found",

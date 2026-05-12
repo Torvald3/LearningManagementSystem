@@ -2,7 +2,6 @@
 
 public record Course(
     Guid Id,
-    Guid AuthorId,
     string Title,
     string Theme,
     string Description,

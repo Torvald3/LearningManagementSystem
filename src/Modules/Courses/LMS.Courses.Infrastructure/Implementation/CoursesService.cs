@@ -1,4 +1,9 @@
-﻿using LMS.Courses.Core.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using LMS.Courses.Core.Models;
 using LMS.Courses.Core.Services;
 using LMS.Courses.Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +19,11 @@ public class CoursesService : ICoursesService
         _dbContext = dbContext;
     }
 
-    public async Task CreateCourseAsync(Course course, CancellationToken cancellationToken = default)
+    public async Task CreateCourseAsync(Course course, Guid ownerUserId, CancellationToken cancellationToken = default)
     {
         _dbContext.Courses.Add(new()
         {
             Id =  course.Id,
-            AuthorId = course.AuthorId,
             Title =  course.Title,
             Theme = course.Theme,
             Description = course.Description,
@@ -31,7 +35,7 @@ public class CoursesService : ICoursesService
         {
             Id = Guid.NewGuid(),
             CourseId = course.Id,
-            UserId = course.AuthorId,
+            UserId = ownerUserId,
             Role = CourseRole.CourseOwner,
             CreatedAt = course.CreatedAt,
             UpdatedAt = course.UpdatedAt
@@ -159,7 +163,6 @@ public class CoursesService : ICoursesService
         return new()
         {
             Id = course.Id,
-            AuthorId = course.AuthorId,
             Title = course.Title,
             Theme = course.Theme,
             Description = course.Description,
@@ -173,7 +176,6 @@ public class CoursesService : ICoursesService
         return _dbContext.Courses.AsNoTracking().Select(c => new Course()
         {
             Id = c.Id,
-            AuthorId = c.AuthorId,
             Title = c.Title,
             Theme = c.Theme,
             Description = c.Description,
@@ -191,7 +193,6 @@ public class CoursesService : ICoursesService
             .Select(member => new Course
             {
                 Id = member.Course.Id,
-                AuthorId = member.Course.AuthorId,
                 Title = member.Course.Title,
                 Theme = member.Course.Theme,
                 Description = member.Course.Description,
@@ -213,7 +214,6 @@ public class CoursesService : ICoursesService
             .Select(member => new Course
             {
                 Id = member.Course.Id,
-                AuthorId = member.Course.AuthorId,
                 Title = member.Course.Title,
                 Theme = member.Course.Theme,
                 Description = member.Course.Description,

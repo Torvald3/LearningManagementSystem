@@ -42,7 +42,7 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
     public Task DisposeAsync() => Task.CompletedTask;
 
     [Fact]
-    public async Task CreateCourse_WithExistingAuthor_ShouldPersistCourse_AndUpdateMetrics()
+    public async Task CreateCourse_WithExistingOwner_ShouldPersistCourse_AndUpdateMetrics()
     {
         var authorId = await _fixture.SeedUserAsync();
 
@@ -61,7 +61,6 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
 
         Assert.True(result.IsSuccess);
         var course = result.Value;
-        Assert.Equal(authorId, course.AuthorId);
         Assert.Equal("C# Basics", course.Title);
         Assert.Equal("Programming", course.Theme);
         Assert.Equal("Intro course", course.Description);
@@ -80,8 +79,7 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
                 .SingleOrDefaultAsync(x => x.CourseId == course.Id && x.UserId == authorId);
 
             Assert.NotNull(courseInDb);
-            Assert.Equal(authorId, courseInDb!.AuthorId);
-            Assert.Equal("C# Basics", courseInDb.Title);
+            Assert.Equal("C# Basics", courseInDb!.Title);
             Assert.NotNull(ownerInDb);
             Assert.Equal(CourseRole.CourseOwner, ownerInDb!.Role);
             Assert.Equal(1, metrics.CoursesTotal);
@@ -89,7 +87,7 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task CreateCourse_WithUnknownAuthor_ShouldReturnAuthorNotFound_AndNotPersistAnything()
+    public async Task CreateCourse_WithUnknownOwner_ShouldReturnUserNotFound_AndNotPersistAnything()
     {
         var result = await _fixture.ExecuteInScopeAsync(async serviceProvider =>
         {
@@ -105,8 +103,8 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
         });
 
         Assert.True(result.IsFailure);
-        Assert.Equal("courses.author_not_found", result.Error.Code);
-        Assert.Contains("does not exist", result.Error.Message);
+        Assert.Equal("courses.user_not_found", result.Error.Code);
+        Assert.Contains("not found", result.Error.Message);
 
         await _fixture.ExecuteInScopeAsync(async serviceProvider =>
         {
@@ -716,7 +714,6 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
         Assert.True(result.IsSuccess);
         var course = result.Value;
         Assert.Equal(courseId, course.Id);
-        Assert.Equal(authorId, course.AuthorId);
         Assert.Equal("Algorithms", course.Title);
         Assert.Equal("Computer Science", course.Theme);
         Assert.Equal("Sorting and graphs", course.Description);
@@ -755,7 +752,7 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task UpdateCourse_ShouldUpdateCourse_AndPreserveAuthorIdAndCreatedAt()
+    public async Task UpdateCourse_ShouldUpdateCourse_AndPreserveCreatedAt()
     {
         var authorId = await _fixture.SeedUserAsync();
         var courseId = await _fixture.SeedCourseAsync(
@@ -790,7 +787,6 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
         var course = result.Value;
 
         Assert.Equal(courseId, course.Id);
-        Assert.Equal(originalCourse.AuthorId, course.AuthorId);
         Assert.Equal(originalCourse.CreatedAt, course.CreatedAt);
         Assert.Equal("Databases Advanced", course.Title);
         Assert.Equal("Backend Engineering", course.Theme);
@@ -804,7 +800,6 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
                 .AsNoTracking()
                 .SingleAsync(x => x.Id == courseId);
 
-            Assert.Equal(originalCourse.AuthorId, courseInDb.AuthorId);
             Assert.Equal(originalCourse.CreatedAt, courseInDb.CreatedAt);
             Assert.Equal("Databases Advanced", courseInDb.Title);
             Assert.Equal("Backend Engineering", courseInDb.Theme);
