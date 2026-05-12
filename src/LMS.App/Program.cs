@@ -1,10 +1,46 @@
 using LMS.App.Configurations;
 using LMS.App.Extensions;
 using LMS.Identity.Api.Extensions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, _, _) =>
+    {
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+        document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT"
+        };
+
+        return Task.CompletedTask;
+    });
+
+    options.AddOperationTransformer((operation, context, _) =>
+    {
+        var metadata = context.Description.ActionDescriptor.EndpointMetadata;
+        var hasAuthorize = metadata.OfType<IAuthorizeData>().Any();
+        var hasAllowAnonymous = metadata.OfType<IAllowAnonymous>().Any();
+
+        if (hasAuthorize && !hasAllowAnonymous)
+        {
+            operation.Security ??= new List<OpenApiSecurityRequirement>();
+            operation.Security.Add(new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = new List<string>()
+            });
+        }
+
+        return Task.CompletedTask;
+    });
+});
 
 builder.Services.AddObservability();
 
