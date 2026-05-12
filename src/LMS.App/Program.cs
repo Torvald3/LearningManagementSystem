@@ -42,6 +42,16 @@ builder.Services.AddOpenApi(options =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddObservability();
 
 builder.Services.AddModulesServices(builder.Configuration);
@@ -51,6 +61,7 @@ builder.Services.AddAuthServices(builder.Configuration);
 var app = builder.Build();
 
 //app.UseHttpsRedirection();
+app.UseCors();
 app.UseRequestMetrics();
 app.UseAuthentication();
 app.UseAuthorization();
