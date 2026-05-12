@@ -28,4 +28,8 @@
 		<ProjectReference Include="..\LMS.Courses.Core\LMS.Courses.Core.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Migrations\" />
+	</ItemGroup>
+
 </Project>
