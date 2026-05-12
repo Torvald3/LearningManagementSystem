@@ -34,6 +34,16 @@ public static class CourseErrors
             "courses.member_already_exists",
             $"User with id {userId} is already a member of course {courseId}.");
 
+    public static Error CourseMemberNotFound(Guid courseId, Guid userId) =>
+        Error.NotFound(
+            "courses.member_not_found",
+            $"User with id {userId} is not a member of course {courseId}.");
+
+    public static Error CannotRemoveCourseOwner(Guid courseId) =>
+        Error.Validation(
+            "courses.owner_cannot_be_removed",
+            $"Course owner cannot be removed from course {courseId}.");
+
     public static Error CourseOwnerAlreadyExists(Guid courseId) =>
         Error.Conflict(
             "courses.owner_already_exists",

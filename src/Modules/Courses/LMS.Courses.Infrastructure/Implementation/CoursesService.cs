@@ -107,6 +107,28 @@ public class CoursesService : ICoursesService
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<bool> DeleteCourseMemberAsync(
+        Guid courseId,
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        var member = await _dbContext.CourseMembers
+            .FirstOrDefaultAsync(
+                x => x.CourseId == courseId && x.UserId == userId,
+                cancellationToken);
+
+        if (member is null)
+        {
+            return false;
+        }
+
+        _dbContext.CourseMembers.Remove(member);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
     public Task<bool> CourseOwnerExistsAsync(Guid courseId, CancellationToken cancellationToken = default)
     {
         return _dbContext.CourseMembers

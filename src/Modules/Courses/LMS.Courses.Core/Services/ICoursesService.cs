@@ -12,6 +12,8 @@ public interface ICoursesService
 
     Task<List<CourseMember>> GetCourseMembersAsync(Guid courseId, CancellationToken cancellationToken = default);
 
+    Task<bool> DeleteCourseMemberAsync(Guid courseId, Guid userId, CancellationToken cancellationToken = default);
+
     Task<bool> CourseOwnerExistsAsync(Guid courseId, CancellationToken cancellationToken = default);
     
     Task<bool> UpdateCourseAsync(Course updatedCourse, CancellationToken cancellationToken = default);
