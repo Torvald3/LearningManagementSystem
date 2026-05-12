@@ -1,4 +1,5 @@
 using LMS.Common.CQRS;
+using LMS.Common.Authorization;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Models;
 using LMS.Courses.Application.Queries.GetCourses;
@@ -19,9 +20,15 @@ public static class GetCoursesEndpoint
     }
 
     private static async Task<IResult> GetCourses(
-        IQueryHandler<GetCoursesQuery, IReadOnlyList<Course>> handler)
+        ICurrentUserService currentUserService,
+        IQueryHandler<GetCoursesQuery, List<Course>> handler)
     {
-        var result = await handler.Handle(new GetCoursesQuery());
+        if (currentUserService.UserId is not { } userId)
+        {
+            return Results.Unauthorized();
+        }
+
+        var result = await handler.Handle(new GetCoursesQuery(userId));
 
         if (result.IsFailure)
         {

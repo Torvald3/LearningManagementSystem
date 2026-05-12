@@ -9,7 +9,11 @@ public static class UsersEndpoints
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/users")
-            .WithTags("Users");
+            .WithTags("Users")
+            .RequireAuthorization();
+
+        group.MapGetUser()
+             .MapUpdateUser();
         
         return app;
     }

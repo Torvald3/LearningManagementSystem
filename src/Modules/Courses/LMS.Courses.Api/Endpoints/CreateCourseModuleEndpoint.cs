@@ -1,5 +1,6 @@
 using FluentValidation;
 using LMS.Common.CQRS;
+using LMS.Courses.Api.Authorization;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Commands.CreateCourseModule;
 using LMS.Courses.Application.Models;
@@ -14,7 +15,8 @@ public static class CreateCourseModuleEndpoint
     public static RouteGroupBuilder MapCreateCourseModule(this RouteGroupBuilder group)
     {
         group.MapPost("/{courseId:guid}/modules", CreateCourseModule)
-             .WithName(nameof(CreateCourseModule));
+             .WithName(nameof(CreateCourseModule))
+             .RequireAuthorization(CourseAuthorizationPolicies.CourseEditor);
 
         return group;
     }

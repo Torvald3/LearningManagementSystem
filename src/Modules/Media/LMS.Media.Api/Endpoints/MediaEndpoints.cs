@@ -9,7 +9,8 @@ public static class MediaEndpoints
     public static IEndpointRouteBuilder MapMediaEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/media")
-            .WithTags("Media");
+            .WithTags("Media")
+            .RequireAuthorization();
 
         group.MapUploadMedia()
              .MapGetMediaByEntity()

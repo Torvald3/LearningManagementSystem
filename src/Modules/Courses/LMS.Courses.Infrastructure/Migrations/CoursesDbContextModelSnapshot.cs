@@ -58,6 +58,46 @@ namespace LMS.Courses.Infrastructure.Migrations
                     b.ToTable("course", "courses");
                 });
 
+            modelBuilder.Entity("LMS.Courses.Infrastructure.Entities.CourseMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_course_member_CourseId_CourseOwner")
+                        .HasFilter("\"Role\" = 'CourseOwner'");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("CourseId", "Role");
+
+                    b.HasIndex("CourseId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("course_member", "courses");
+                });
+
             modelBuilder.Entity("LMS.Courses.Infrastructure.Entities.CourseModule", b =>
                 {
                     b.Property<Guid>("Id")
@@ -148,6 +188,17 @@ namespace LMS.Courses.Infrastructure.Migrations
                     b.ToTable("lesson", "courses");
                 });
 
+            modelBuilder.Entity("LMS.Courses.Infrastructure.Entities.CourseMember", b =>
+                {
+                    b.HasOne("LMS.Courses.Infrastructure.Entities.Course", "Course")
+                        .WithMany("Members")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+                });
+
             modelBuilder.Entity("LMS.Courses.Infrastructure.Entities.CourseModule", b =>
                 {
                     b.HasOne("LMS.Courses.Infrastructure.Entities.Course", "Course")
@@ -172,6 +223,8 @@ namespace LMS.Courses.Infrastructure.Migrations
 
             modelBuilder.Entity("LMS.Courses.Infrastructure.Entities.Course", b =>
                 {
+                    b.Navigation("Members");
+
                     b.Navigation("Modules");
                 });
 

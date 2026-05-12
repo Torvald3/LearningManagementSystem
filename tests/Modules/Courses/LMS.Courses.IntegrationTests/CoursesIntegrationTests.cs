@@ -15,6 +15,7 @@ using LMS.Courses.Application.Queries.GetCourseModules;
 using LMS.Courses.Application.Queries.GetCourses;
 using LMS.Courses.Application.Queries.GetLesson;
 using LMS.Courses.Application.Queries.GetLessons;
+using LMS.Courses.Core.Models;
 using LMS.Courses.Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -74,9 +75,15 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
                 .AsNoTracking()
                 .SingleOrDefaultAsync(x => x.Id == course.Id);
 
+            var ownerInDb = await coursesDbContext.CourseMembers
+                .AsNoTracking()
+                .SingleOrDefaultAsync(x => x.CourseId == course.Id && x.UserId == authorId);
+
             Assert.NotNull(courseInDb);
             Assert.Equal(authorId, courseInDb!.AuthorId);
             Assert.Equal("C# Basics", courseInDb.Title);
+            Assert.NotNull(ownerInDb);
+            Assert.Equal(CourseRole.CourseOwner, ownerInDb!.Role);
             Assert.Equal(1, metrics.CoursesTotal);
         });
     }
@@ -334,7 +341,7 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
         var result = await _fixture.ExecuteInScopeAsync(async serviceProvider =>
         {
             var handler = serviceProvider
-                .GetRequiredService<IQueryHandler<GetCourseModulesQuery, IReadOnlyList<CourseModuleSummaryModel>>>();
+                .GetRequiredService<IQueryHandler<GetCourseModulesQuery, List<CourseModuleSummaryModel>>>();
 
             return await handler.Handle(new GetCourseModulesQuery(courseId));
         });
@@ -399,7 +406,7 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
         var result = await _fixture.ExecuteInScopeAsync(async serviceProvider =>
         {
             var handler = serviceProvider
-                .GetRequiredService<IQueryHandler<GetLessonsQuery, IReadOnlyList<LessonSummaryModel>>>();
+                .GetRequiredService<IQueryHandler<GetLessonsQuery, List<LessonSummaryModel>>>();
 
             return await handler.Handle(new GetLessonsQuery(courseId, moduleId));
         });
@@ -735,9 +742,9 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
         var result = await _fixture.ExecuteInScopeAsync(async serviceProvider =>
         {
             var handler = serviceProvider
-                .GetRequiredService<IQueryHandler<GetCoursesQuery, IReadOnlyList<CourseModel>>>();
+                .GetRequiredService<IQueryHandler<GetCoursesQuery, List<CourseModel>>>();
 
-            return await handler.Handle(new GetCoursesQuery());
+            return await handler.Handle(new GetCoursesQuery(authorId));
         });
 
         Assert.True(result.IsSuccess);

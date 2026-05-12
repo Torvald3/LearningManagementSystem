@@ -23,13 +23,14 @@ public class GetCoursesQueryHandler : IQueryHandler<GetCoursesQuery, List<Course
         GetCoursesQuery query,
         CancellationToken cancellationToken = default)
     {
-        var courses = await _coursesService.GetCoursesAsync(cancellationToken);
+        var courses = await _coursesService.GetCoursesByMemberAsync(query.UserId, cancellationToken);
 
         _logger.LogInformation(
-            "timestamp={Timestamp} level={Level} event={Event} courses_count={CoursesCount}",
+            "timestamp={Timestamp} level={Level} event={Event} user_id={UserId} courses_count={CoursesCount}",
             DateTime.UtcNow,
             "INFO",
-            "courses.get_all.succeeded",
+            "courses.get_by_member.succeeded",
+            query.UserId,
             courses.Count);
 
         List<Course> result = courses

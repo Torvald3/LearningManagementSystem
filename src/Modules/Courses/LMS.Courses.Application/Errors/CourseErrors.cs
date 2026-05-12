@@ -28,4 +28,19 @@ public static class CourseErrors
         Error.Validation(
             "courses.invalid_position",
             $"Position must be between 1 and {maxPosition}.");
+
+    public static Error UserNotFound(Guid userId) =>
+        Error.NotFound(
+            "courses.user_not_found",
+            $"User with id {userId} not found.");
+
+    public static Error CourseMemberAlreadyExists(Guid courseId, Guid userId) =>
+        Error.Conflict(
+            "courses.member_already_exists",
+            $"User with id {userId} is already a member of course {courseId}.");
+
+    public static Error CourseOwnerAlreadyExists(Guid courseId) =>
+        Error.Conflict(
+            "courses.owner_already_exists",
+            $"Course with id {courseId} already has an owner.");
 }

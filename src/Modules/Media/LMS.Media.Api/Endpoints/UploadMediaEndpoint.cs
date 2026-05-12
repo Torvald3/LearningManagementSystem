@@ -4,6 +4,7 @@ using LMS.Media.Application.Commands.UploadMedia;
 using LMS.Media.Core.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MediaFileModel = LMS.Media.Application.Models.MediaFile;
 
@@ -15,38 +16,32 @@ public static class UploadMediaEndpoint
     {
         group.MapPost("/", UploadMedia)
              .WithName(nameof(UploadMedia))
-             .Accepts<IFormFile>("multipart/form-data");
+             .Accepts<IFormFile>("multipart/form-data")
+             .DisableAntiforgery();
 
         return group;
     }
 
     private static async Task<IResult> UploadMedia(
-        HttpRequest request,
+        [FromForm] IFormFile? file,
+        [FromForm] MediaEntityType entityType,
+        [FromForm] Guid entityId,
         ICommandHandler<UploadMediaCommand, MediaFileModel> handler,
         CancellationToken cancellationToken)
     {
-        if (!request.HasFormContentType)
-        {
-            IEnumerable<string> errors = ["Request must be multipart/form-data."];
-            return Results.BadRequest(errors);
-        }
-
-        var form = await request.ReadFormAsync(cancellationToken);
-        var file = form.Files.GetFile("file");
-
         if (file is null)
         {
             IEnumerable<string> errors = ["File is required."];
             return Results.BadRequest(errors);
         }
 
-        if (!Enum.TryParse<MediaEntityType>(form["entityType"].ToString(), ignoreCase: true, out var entityType))
+        if (!Enum.IsDefined(entityType))
         {
             IEnumerable<string> errors = ["EntityType is invalid."];
             return Results.BadRequest(errors);
         }
 
-        if (!Guid.TryParse(form["entityId"].ToString(), out var entityId))
+        if (entityId == Guid.Empty)
         {
             IEnumerable<string> errors = ["EntityId is invalid."];
             return Results.BadRequest(errors);

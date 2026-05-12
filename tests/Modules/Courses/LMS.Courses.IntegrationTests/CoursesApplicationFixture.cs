@@ -1,5 +1,6 @@
 ﻿using LMS.Common.Database.Configuration;
 using LMS.Common.Observability.Metrics;
+using LMS.Courses.Core.Models;
 using LMS.Courses.Infrastructure.DbContexts;
 using LMS.Users.Contracts.Models;
 using LMS.Users.Contracts.Services;
@@ -136,6 +137,16 @@ public sealed class CoursesApplicationFixture : IAsyncLifetime
                 Title = title ?? "Algorithms",
                 Theme = theme ?? "Computer Science",
                 Description = description ?? "Sorting and graphs",
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            coursesDbContext.CourseMembers.Add(new LMS.Courses.Infrastructure.Entities.CourseMember
+            {
+                Id = Guid.NewGuid(),
+                CourseId = courseId,
+                UserId = authorId,
+                Role = CourseRole.CourseOwner,
                 CreatedAt = now,
                 UpdatedAt = now
             });

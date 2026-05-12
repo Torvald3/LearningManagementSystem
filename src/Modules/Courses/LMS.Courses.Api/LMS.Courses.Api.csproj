@@ -17,6 +17,7 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\Common\LMS.Common\LMS.Common.csproj" />
 		<ProjectReference Include="..\..\..\Common\LMS.Common.Database\LMS.Common.Database.csproj" />
 		<ProjectReference Include="..\..\..\Common\LMS.Common.Observability\LMS.Common.Observability.csproj" />
 	</ItemGroup>
