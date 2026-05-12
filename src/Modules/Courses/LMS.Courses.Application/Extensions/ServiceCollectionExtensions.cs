@@ -6,6 +6,7 @@ using LMS.Courses.Application.Commands.CreateCourse;
 using LMS.Courses.Application.Commands.CreateCourseModule;
 using LMS.Courses.Application.Commands.CreateLesson;
 using LMS.Courses.Application.Commands.DeleteCourse;
+using LMS.Courses.Application.Commands.RemoveCourseMember;
 using LMS.Courses.Application.Commands.UpdateCourse;
 using LMS.Courses.Application.Commands.UpdateCourseModule;
 using LMS.Courses.Application.Commands.UpdateLesson;
@@ -37,6 +38,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICommandHandler<UpdateCourseModuleCommand, CourseModule>, UpdateCourseModuleCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateLessonCommand, Lesson>, UpdateLessonCommandHandler>();
         services.AddScoped<ICommandHandler<DeleteCourseCommand>, DeleteCourseCommandHandler>();
+        services.AddScoped<ICommandHandler<RemoveCourseMemberCommand>, RemoveCourseMemberCommandHandler>();
 
         services.AddScoped<IQueryHandler<GetCourseQuery, Course>, GetCourseQueryHandler>();
         services.AddScoped<IQueryHandler<GetCourseModuleQuery, CourseModule>, GetCourseModuleQueryHandler>();
