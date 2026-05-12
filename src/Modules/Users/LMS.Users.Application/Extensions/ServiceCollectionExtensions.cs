@@ -1,5 +1,6 @@
 ﻿using LMS.Common.CQRS;
 using LMS.Users.Application.Commands;
+using LMS.Users.Application.Models;
 using LMS.Users.Application.Queries;
 using LMS.Users.Application.Services;
 using LMS.Users.Contracts.Services;
@@ -12,7 +13,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<ICommandHandler<CreateUserCommand>, CreateUserCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateUserCommand, User>, UpdateUserCommandHandler>();
 
+        services.AddScoped<IQueryHandler<GetUserQuery, User>, GetUserQueryHandler>();
         services.AddScoped<IQueryHandler<UserExistsQuery, bool>, UserExistsQueryHandler>(); 
         
         services.AddScoped<IUsersModuleService, UsersModuleService>();

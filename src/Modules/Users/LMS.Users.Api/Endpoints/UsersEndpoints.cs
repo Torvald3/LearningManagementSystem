@@ -10,6 +10,9 @@ public static class UsersEndpoints
     {
         var group = app.MapGroup("/api/users")
             .WithTags("Users");
+
+        group.MapGetUser()
+             .MapUpdateUser();
         
         return app;
     }
