@@ -39,7 +39,6 @@ public class GetTeachingCoursesQueryHandler : IQueryHandler<GetTeachingCoursesQu
         return courses
             .Select(course => new Course(
                 course.Id,
-                course.AuthorId,
                 course.Title,
                 course.Theme,
                 course.Description,

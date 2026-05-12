@@ -38,7 +38,6 @@ public static class GetLearningCoursesEndpoint
         var response = result.Value
             .Select(course => new CourseResponse(
                 course.Id,
-                course.AuthorId,
                 course.Title,
                 course.Theme,
                 course.Description,

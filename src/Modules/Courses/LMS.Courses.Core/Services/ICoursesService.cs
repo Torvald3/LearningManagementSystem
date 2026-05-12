@@ -4,7 +4,7 @@ namespace LMS.Courses.Core.Services;
 
 public interface ICoursesService
 {
-    Task CreateCourseAsync(Course course, CancellationToken cancellationToken = default);
+    Task CreateCourseAsync(Course course, Guid ownerUserId, CancellationToken cancellationToken = default);
 
     Task CreateCourseMemberAsync(CourseMember member, CancellationToken cancellationToken = default);
 

@@ -56,7 +56,6 @@ public static class CreateCourseEndpoint
             $"/api/courses/{course.Id}",
             new CourseResponse(
                 course.Id,
-                course.AuthorId,
                 course.Title,
                 course.Theme,
                 course.Description,

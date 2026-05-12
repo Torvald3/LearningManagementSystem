@@ -118,7 +118,7 @@ public sealed class CoursesApplicationFixture : IAsyncLifetime
     }
 
     public async Task<Guid> SeedCourseAsync(
-        Guid authorId,
+        Guid ownerId,
         string? title = null,
         string? theme = null,
         string? description = null)
@@ -133,7 +133,6 @@ public sealed class CoursesApplicationFixture : IAsyncLifetime
             coursesDbContext.Courses.Add(new LMS.Courses.Infrastructure.Entities.Course
             {
                 Id = courseId,
-                AuthorId = authorId,
                 Title = title ?? "Algorithms",
                 Theme = theme ?? "Computer Science",
                 Description = description ?? "Sorting and graphs",
@@ -145,7 +144,7 @@ public sealed class CoursesApplicationFixture : IAsyncLifetime
             {
                 Id = Guid.NewGuid(),
                 CourseId = courseId,
-                UserId = authorId,
+                UserId = ownerId,
                 Role = CourseRole.CourseOwner,
                 CreatedAt = now,
                 UpdatedAt = now

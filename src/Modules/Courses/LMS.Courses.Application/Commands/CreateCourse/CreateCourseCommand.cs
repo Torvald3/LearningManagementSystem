@@ -3,7 +3,7 @@
 namespace LMS.Courses.Application.Commands.CreateCourse;
 
 public record CreateCourseCommand(
-    Guid AuthorId,
+    Guid OwnerUserId,
     string Title,
     string Theme,
     string Description) : ICommand;

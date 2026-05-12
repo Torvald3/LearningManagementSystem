@@ -45,7 +45,6 @@ public class GetCourseQueryHandler : IQueryHandler<GetCourseQuery, Course>
 
         return new Course(
             course.Id,
-            course.AuthorId,
             course.Title,
             course.Theme,
             course.Description,

@@ -41,7 +41,6 @@ public class UpdateCourseCommandHandler : ICommandHandler<UpdateCourseCommand, C
         var updatedCourse = new Core.Models.Course
         {
             Id = existingCourse.Id,
-            AuthorId = existingCourse.AuthorId,
             CreatedAt = existingCourse.CreatedAt,
             Title = command.Title.Trim(),
             Theme = command.Theme.Trim(),
@@ -60,7 +59,6 @@ public class UpdateCourseCommandHandler : ICommandHandler<UpdateCourseCommand, C
 
         return new Course(
             updatedCourse.Id,
-            updatedCourse.AuthorId,
             updatedCourse.Title,
             updatedCourse.Theme,
             updatedCourse.Description,

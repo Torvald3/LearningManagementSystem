@@ -30,11 +30,11 @@ public class CreateCourseCommandHandler : ICommandHandler<CreateCourseCommand, C
 
     public async Task<Result<Course>> HandleAsync(CreateCourseCommand command, CancellationToken cancellationToken = default)
     {
-        var authorExists = await _usersModuleService.UserExistsAsync(command.AuthorId);
+        var ownerExists = await _usersModuleService.UserExistsAsync(command.OwnerUserId);
 
-        if (!authorExists)
+        if (!ownerExists)
         {
-            return CourseErrors.AuthorNotFound(command.AuthorId);
+            return CourseErrors.UserNotFound(command.OwnerUserId);
         }
 
         var now = DateTime.UtcNow;
@@ -42,7 +42,6 @@ public class CreateCourseCommandHandler : ICommandHandler<CreateCourseCommand, C
         var course = new Core.Models.Course
         {
             Id = Guid.NewGuid(),
-            AuthorId = command.AuthorId,
             Title = command.Title,
             Theme = command.Theme,
             Description = command.Description,
@@ -50,21 +49,20 @@ public class CreateCourseCommandHandler : ICommandHandler<CreateCourseCommand, C
             UpdatedAt = now
         };
 
-        await _coursesService.CreateCourseAsync(course, cancellationToken);
+        await _coursesService.CreateCourseAsync(course, command.OwnerUserId, cancellationToken);
 
         _metrics.CourseCreated(course.Id);
 
         _logger.LogInformation(
-            "timestamp={Timestamp} level={Level} event={Event} course_id={CourseId} author_id={AuthorId}",
+            "timestamp={Timestamp} level={Level} event={Event} course_id={CourseId} owner_user_id={OwnerUserId}",
             DateTime.UtcNow,
             "INFO",
             "course.create.succeeded",
             course.Id,
-            course.AuthorId);
+            command.OwnerUserId);
 
         return new Course(
             course.Id,
-            course.AuthorId,
             course.Title,
             course.Theme,
             course.Description,

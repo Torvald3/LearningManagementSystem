@@ -2,7 +2,6 @@
 
 public record CourseResponse(
     Guid Id,
-    Guid AuthorId,
     string Title,
     string Theme,
     string Description,
