@@ -1,5 +1,7 @@
-﻿using System.Text;
+using System.Text;
+using LMS.Common.Authorization;
 using LMS.Common.Database.Configuration;
+using LMS.Identity.Api.Services;
 using LMS.Identity.Application.Extensions;
 using LMS.Identity.Core.Configurations;
 using LMS.Identity.Core.Models;
@@ -58,7 +60,9 @@ public static class ServiceCollectionExtensions
                     ClockSkew = TimeSpan.Zero
                 };
             });
-        
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddAuthorization();
 
         return services;

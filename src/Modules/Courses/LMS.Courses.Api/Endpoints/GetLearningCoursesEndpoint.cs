@@ -1,34 +1,34 @@
-using LMS.Common.CQRS;
 using LMS.Common.Authorization;
+using LMS.Common.CQRS;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Models;
-using LMS.Courses.Application.Queries.GetCourses;
+using LMS.Courses.Application.Queries.GetLearningCourses;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace LMS.Courses.Api.Endpoints;
 
-public static class GetCoursesEndpoint
+public static class GetLearningCoursesEndpoint
 {
-    public static RouteGroupBuilder MapGetCourses(this RouteGroupBuilder group)
+    public static RouteGroupBuilder MapGetLearningCourses(this RouteGroupBuilder group)
     {
-        group.MapGet("/", GetCourses)
-            .WithName(nameof(GetCourses));
+        group.MapGet("/my/learning", GetLearningCourses)
+             .WithName(nameof(GetLearningCourses));
 
         return group;
     }
 
-    private static async Task<IResult> GetCourses(
+    private static async Task<IResult> GetLearningCourses(
         ICurrentUserService currentUserService,
-        IQueryHandler<GetCoursesQuery, List<Course>> handler)
+        IQueryHandler<GetLearningCoursesQuery, List<Course>> handler)
     {
         if (currentUserService.UserId is not { } userId)
         {
             return Results.Unauthorized();
         }
 
-        var result = await handler.Handle(new GetCoursesQuery(userId));
+        var result = await handler.Handle(new GetLearningCoursesQuery(userId));
 
         if (result.IsFailure)
         {

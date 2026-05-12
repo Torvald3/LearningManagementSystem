@@ -4,36 +4,39 @@ using LMS.Courses.Application.Models;
 using LMS.Courses.Core.Services;
 using Microsoft.Extensions.Logging;
 
-namespace LMS.Courses.Application.Queries.GetCourses;
+namespace LMS.Courses.Application.Queries.GetTeachingCourses;
 
-public class GetCoursesQueryHandler : IQueryHandler<GetCoursesQuery, List<Course>>
+public class GetTeachingCoursesQueryHandler : IQueryHandler<GetTeachingCoursesQuery, List<Course>>
 {
     private readonly ICoursesService _coursesService;
-    private readonly ILogger<GetCoursesQueryHandler> _logger;
+    private readonly ILogger<GetTeachingCoursesQueryHandler> _logger;
 
-    public GetCoursesQueryHandler(
+    public GetTeachingCoursesQueryHandler(
         ICoursesService coursesService,
-        ILogger<GetCoursesQueryHandler> logger)
+        ILogger<GetTeachingCoursesQueryHandler> logger)
     {
         _coursesService = coursesService;
         _logger = logger;
     }
 
     public async Task<Result<List<Course>>> Handle(
-        GetCoursesQuery query,
+        GetTeachingCoursesQuery query,
         CancellationToken cancellationToken = default)
     {
-        var courses = await _coursesService.GetCoursesByMemberAsync(query.UserId, cancellationToken);
+        var courses = await _coursesService.GetCoursesByMemberRolesAsync(
+            query.UserId,
+            [Core.Models.CourseRole.CourseOwner, Core.Models.CourseRole.Teacher],
+            cancellationToken);
 
         _logger.LogInformation(
             "timestamp={Timestamp} level={Level} event={Event} user_id={UserId} courses_count={CoursesCount}",
             DateTime.UtcNow,
             "INFO",
-            "courses.get_by_member.succeeded",
+            "courses.get_teaching.succeeded",
             query.UserId,
             courses.Count);
 
-        List<Course> result = courses
+        return courses
             .Select(course => new Course(
                 course.Id,
                 course.AuthorId,
@@ -43,7 +46,5 @@ public class GetCoursesQueryHandler : IQueryHandler<GetCoursesQuery, List<Course
                 course.CreatedAt,
                 course.UpdatedAt))
             .ToList();
-
-        return result;
     }
 }

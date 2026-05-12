@@ -1,4 +1,5 @@
 using FluentValidation;
+using LMS.Common.Authorization;
 using LMS.Common.CQRS;
 using LMS.Users.Api.Models;
 using LMS.Users.Application.Commands;
@@ -23,6 +24,7 @@ public static class UpdateUserEndpoint
         Guid userId,
         UpdateUserRequest request,
         IValidator<UpdateUserRequest> validator,
+        ICurrentUserService currentUserService,
         ICommandHandler<UpdateUserCommand, UserModel> handler)
     {
         var validationResult = await validator.ValidateAsync(request);
@@ -30,6 +32,11 @@ public static class UpdateUserEndpoint
         if (!validationResult.IsValid)
         {
             return Results.BadRequest(validationResult.Errors);
+        }
+
+        if (currentUserService.UserId != userId)
+        {
+            return Results.Forbid();
         }
 
         var result = await handler.HandleAsync(

@@ -744,7 +744,7 @@ public sealed class CourseHandlersIntegrationTests : IAsyncLifetime
             var handler = serviceProvider
                 .GetRequiredService<IQueryHandler<GetCoursesQuery, List<CourseModel>>>();
 
-            return await handler.Handle(new GetCoursesQuery());
+            return await handler.Handle(new GetCoursesQuery(authorId));
         });
 
         Assert.True(result.IsSuccess);

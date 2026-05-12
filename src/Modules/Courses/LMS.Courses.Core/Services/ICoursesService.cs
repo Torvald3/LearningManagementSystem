@@ -22,6 +22,13 @@ public interface ICoursesService
     
     Task<List<Course>> GetCoursesAsync(CancellationToken cancellationToken = default);
 
+    Task<List<Course>> GetCoursesByMemberAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    Task<List<Course>> GetCoursesByMemberRolesAsync(
+        Guid userId,
+        IReadOnlyCollection<CourseRole> roles,
+        CancellationToken cancellationToken = default);
+
     Task CreateCourseModuleAsync(CourseModule module, CancellationToken cancellationToken = default);
 
     Task<CourseModule?> GetCourseModuleAsync(Guid courseId, Guid moduleId, CancellationToken cancellationToken = default);

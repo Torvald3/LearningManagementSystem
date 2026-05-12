@@ -1,4 +1,5 @@
 using LMS.Common.CQRS;
+using LMS.Courses.Api.Authorization;
 using LMS.Courses.Application.Commands.ArchiveCourseModule;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +12,8 @@ public static class ArchiveCourseModuleEndpoint
     public static RouteGroupBuilder MapArchiveCourseModule(this RouteGroupBuilder group)
     {
         group.MapDelete("/{courseId:guid}/modules/{moduleId:guid}", ArchiveCourseModule)
-             .WithName(nameof(ArchiveCourseModule));
+             .WithName(nameof(ArchiveCourseModule))
+             .RequireAuthorization(CourseAuthorizationPolicies.CourseEditor);
 
         return group;
     }

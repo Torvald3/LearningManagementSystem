@@ -22,7 +22,7 @@ public static class GetMediaByEntityEndpoint
     private static async Task<IResult> GetMediaByEntity(
         string entityType,
         Guid entityId,
-        IQueryHandler<GetMediaByEntityQuery, IReadOnlyList<MediaFileModel>> handler)
+        IQueryHandler<GetMediaByEntityQuery, List<MediaFileModel>> handler)
     {
         if (!Enum.TryParse<MediaEntityType>(entityType, ignoreCase: true, out var parsedEntityType))
         {

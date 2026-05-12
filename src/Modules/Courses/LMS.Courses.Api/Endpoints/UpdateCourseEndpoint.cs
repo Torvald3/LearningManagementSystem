@@ -1,5 +1,6 @@
 using FluentValidation;
 using LMS.Common.CQRS;
+using LMS.Courses.Api.Authorization;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Commands.UpdateCourse;
 using LMS.Courses.Application.Models;
@@ -14,7 +15,8 @@ public static class UpdateCourseEndpoint
     public static RouteGroupBuilder MapUpdateCourse(this RouteGroupBuilder group)
     {
         group.MapPut("/{id:guid}", UpdateCourse)
-             .WithName(nameof(UpdateCourse));
+             .WithName(nameof(UpdateCourse))
+             .RequireAuthorization(CourseAuthorizationPolicies.CourseOwner);
 
         return group;
     }

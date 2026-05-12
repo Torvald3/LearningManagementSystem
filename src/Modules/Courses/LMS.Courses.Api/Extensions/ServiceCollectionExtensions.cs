@@ -1,9 +1,12 @@
-﻿using FluentValidation;
+using FluentValidation;
 using LMS.Common.Database.Configuration;
+using LMS.Courses.Api.Authorization;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Api.Validators;
 using LMS.Courses.Application.Extensions;
+using LMS.Courses.Core.Models;
 using LMS.Courses.Infrastructure.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +27,30 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
+        services.AddScoped<ICourseAuthorizationService, CourseAuthorizationService>();
+        services.AddScoped<IAuthorizationHandler, CourseRoleAuthorizationHandler>();
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy(
+                CourseAuthorizationPolicies.CourseMember,
+                policy => policy.Requirements.Add(new CourseRoleRequirement(
+                    CourseRole.CourseOwner,
+                    CourseRole.Teacher,
+                    CourseRole.Student)));
+
+            options.AddPolicy(
+                CourseAuthorizationPolicies.CourseEditor,
+                policy => policy.Requirements.Add(new CourseRoleRequirement(
+                    CourseRole.CourseOwner,
+                    CourseRole.Teacher)));
+
+            options.AddPolicy(
+                CourseAuthorizationPolicies.CourseOwner,
+                policy => policy.Requirements.Add(new CourseRoleRequirement(
+                    CourseRole.CourseOwner)));
+        });
+
         services.AddScoped<IValidator<AddCourseMemberRequest>, AddCourseMemberRequestValidator>();
         services.AddScoped<IValidator<CreateCourseRequest>, CreateCourseRequestValidator>();
         services.AddScoped<IValidator<CreateCourseModuleRequest>, CreateCourseModuleRequestValidator>();

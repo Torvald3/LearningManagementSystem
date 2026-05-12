@@ -1,4 +1,5 @@
 using LMS.Common.CQRS;
+using LMS.Courses.Api.Authorization;
 using LMS.Courses.Api.Models;
 using LMS.Courses.Application.Queries.GetCourseMembers;
 using Microsoft.AspNetCore.Builder;
@@ -13,7 +14,8 @@ public static class GetCourseMembersEndpoint
     public static RouteGroupBuilder MapGetCourseMembers(this RouteGroupBuilder group)
     {
         group.MapGet("/{courseId:guid}/members", GetCourseMembers)
-             .WithName(nameof(GetCourseMembers));
+             .WithName(nameof(GetCourseMembers))
+             .RequireAuthorization(CourseAuthorizationPolicies.CourseMember);
 
         return group;
     }

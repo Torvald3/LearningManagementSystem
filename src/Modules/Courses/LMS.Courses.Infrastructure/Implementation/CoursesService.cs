@@ -182,6 +182,47 @@ public class CoursesService : ICoursesService
         }).ToListAsync(cancellationToken: cancellationToken);
     }
 
+    public Task<List<Course>> GetCoursesByMemberAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.CourseMembers
+            .AsNoTracking()
+            .Where(member => member.UserId == userId)
+            .OrderBy(member => member.Course.CreatedAt)
+            .Select(member => new Course
+            {
+                Id = member.Course.Id,
+                AuthorId = member.Course.AuthorId,
+                Title = member.Course.Title,
+                Theme = member.Course.Theme,
+                Description = member.Course.Description,
+                CreatedAt = member.Course.CreatedAt,
+                UpdatedAt = member.Course.UpdatedAt
+            })
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<List<Course>> GetCoursesByMemberRolesAsync(
+        Guid userId,
+        IReadOnlyCollection<CourseRole> roles,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.CourseMembers
+            .AsNoTracking()
+            .Where(member => member.UserId == userId && roles.Contains(member.Role))
+            .OrderBy(member => member.Course.CreatedAt)
+            .Select(member => new Course
+            {
+                Id = member.Course.Id,
+                AuthorId = member.Course.AuthorId,
+                Title = member.Course.Title,
+                Theme = member.Course.Theme,
+                Description = member.Course.Description,
+                CreatedAt = member.Course.CreatedAt,
+                UpdatedAt = member.Course.UpdatedAt
+            })
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task CreateCourseModuleAsync(CourseModule module, CancellationToken cancellationToken = default)
     {
         _dbContext.CourseModules.Add(new()

@@ -17,6 +17,8 @@ using LMS.Courses.Application.Queries.GetCourseMembers;
 using LMS.Courses.Application.Queries.GetCourses;
 using LMS.Courses.Application.Queries.GetLesson;
 using LMS.Courses.Application.Queries.GetLessons;
+using LMS.Courses.Application.Queries.GetLearningCourses;
+using LMS.Courses.Application.Queries.GetTeachingCourses;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LMS.Courses.Application.Extensions;
@@ -43,6 +45,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryHandler<GetCoursesQuery, List<Course>>, GetCoursesQueryHandler>();
         services.AddScoped<IQueryHandler<GetLessonQuery, Lesson>, GetLessonQueryHandler>();
         services.AddScoped<IQueryHandler<GetLessonsQuery, List<LessonSummary>>, GetLessonsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetLearningCoursesQuery, List<Course>>, GetLearningCoursesQueryHandler>();
+        services.AddScoped<IQueryHandler<GetTeachingCoursesQuery, List<Course>>, GetTeachingCoursesQueryHandler>();
 
         return services;
     }
