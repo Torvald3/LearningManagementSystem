@@ -5,6 +5,14 @@ namespace LMS.Courses.Core.Services;
 public interface ICoursesService
 {
     Task CreateCourseAsync(Course course, CancellationToken cancellationToken = default);
+
+    Task CreateCourseMemberAsync(CourseMember member, CancellationToken cancellationToken = default);
+
+    Task<CourseMember?> GetCourseMemberAsync(Guid courseId, Guid userId, CancellationToken cancellationToken = default);
+
+    Task<List<CourseMember>> GetCourseMembersAsync(Guid courseId, CancellationToken cancellationToken = default);
+
+    Task<bool> CourseOwnerExistsAsync(Guid courseId, CancellationToken cancellationToken = default);
     
     Task<bool> UpdateCourseAsync(Course updatedCourse, CancellationToken cancellationToken = default);
     

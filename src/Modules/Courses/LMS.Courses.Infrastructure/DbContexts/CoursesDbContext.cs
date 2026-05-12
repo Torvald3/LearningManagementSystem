@@ -11,6 +11,8 @@ public class CoursesDbContext : DbContext
     public DbSet<CourseModule> CourseModules => Set<CourseModule>();
 
     public DbSet<Lesson> Lessons => Set<Lesson>();
+
+    public DbSet<CourseMember> CourseMembers => Set<CourseMember>();
     
     public CoursesDbContext(DbContextOptions<CoursesDbContext> options)
         : base(options)
@@ -24,6 +26,7 @@ public class CoursesDbContext : DbContext
         modelBuilder.HasDefaultSchema("courses");
 
         modelBuilder.ApplyConfiguration(new CourseConfiguration());
+        modelBuilder.ApplyConfiguration(new CourseMemberConfiguration());
         modelBuilder.ApplyConfiguration(new CourseModuleConfiguration());
         modelBuilder.ApplyConfiguration(new LessonConfiguration());
     }

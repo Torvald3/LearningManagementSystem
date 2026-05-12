@@ -12,6 +12,7 @@ public static class CourseEndpoints
             .WithTags("Courses");
 
         group.MapCreateCourse()
+             .MapAddCourseMember()
              .MapCreateCourseModule()
              .MapCreateLesson()
              .MapUpdateCourse()
@@ -23,6 +24,7 @@ public static class CourseEndpoints
              .MapGetCourse()
              .MapGetCourseModule()
              .MapGetCourseModules()
+             .MapGetCourseMembers()
              .MapGetCourses()
              .MapGetLesson()
              .MapGetLessons();

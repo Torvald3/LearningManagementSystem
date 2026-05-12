@@ -20,7 +20,7 @@ public static class GetCourseModulesEndpoint
 
     private static async Task<IResult> GetCourseModules(
         Guid courseId,
-        IQueryHandler<GetCourseModulesQuery, IReadOnlyList<CourseModuleSummary>> handler)
+        IQueryHandler<GetCourseModulesQuery, List<CourseModuleSummary>> handler)
     {
         var result = await handler.Handle(new GetCourseModulesQuery(courseId));
 

@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
+        services.AddScoped<IValidator<AddCourseMemberRequest>, AddCourseMemberRequestValidator>();
         services.AddScoped<IValidator<CreateCourseRequest>, CreateCourseRequestValidator>();
         services.AddScoped<IValidator<CreateCourseModuleRequest>, CreateCourseModuleRequestValidator>();
         services.AddScoped<IValidator<CreateLessonRequest>, CreateLessonRequestValidator>();

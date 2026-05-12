@@ -17,4 +17,6 @@ public class Course
     public DateTime UpdatedAt { get; set; }
 
     public ICollection<CourseModule> Modules { get; set; } = [];
+
+    public ICollection<CourseMember> Members { get; set; } = [];
 }

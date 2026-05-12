@@ -27,7 +27,89 @@ public class CoursesService : ICoursesService
             UpdatedAt = course.UpdatedAt
         });
 
+        _dbContext.CourseMembers.Add(new Entities.CourseMember
+        {
+            Id = Guid.NewGuid(),
+            CourseId = course.Id,
+            UserId = course.AuthorId,
+            Role = CourseRole.CourseOwner,
+            CreatedAt = course.CreatedAt,
+            UpdatedAt = course.UpdatedAt
+        });
+
         await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task CreateCourseMemberAsync(CourseMember member, CancellationToken cancellationToken = default)
+    {
+        _dbContext.CourseMembers.Add(new Entities.CourseMember
+        {
+            Id = member.Id,
+            CourseId = member.CourseId,
+            UserId = member.UserId,
+            Role = member.Role,
+            CreatedAt = member.CreatedAt,
+            UpdatedAt = member.UpdatedAt
+        });
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<CourseMember?> GetCourseMemberAsync(
+        Guid courseId,
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        var member = await _dbContext.CourseMembers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                x => x.CourseId == courseId && x.UserId == userId,
+                cancellationToken);
+
+        if (member is null)
+        {
+            return null;
+        }
+
+        return new CourseMember
+        {
+            Id = member.Id,
+            CourseId = member.CourseId,
+            UserId = member.UserId,
+            Role = member.Role,
+            CreatedAt = member.CreatedAt,
+            UpdatedAt = member.UpdatedAt
+        };
+    }
+
+    public Task<List<CourseMember>> GetCourseMembersAsync(
+        Guid courseId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.CourseMembers
+            .AsNoTracking()
+            .Where(x => x.CourseId == courseId)
+            .OrderBy(x => x.Role)
+            .ThenBy(x => x.CreatedAt)
+            .Select(x => new CourseMember
+            {
+                Id = x.Id,
+                CourseId = x.CourseId,
+                UserId = x.UserId,
+                Role = x.Role,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt
+            })
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<bool> CourseOwnerExistsAsync(Guid courseId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.CourseMembers
+            .AsNoTracking()
+            .AnyAsync(
+                x => x.CourseId == courseId && x.Role == CourseRole.CourseOwner,
+                cancellationToken);
     }
 
     public async Task<bool> UpdateCourseAsync(Course updatedCourse, CancellationToken cancellationToken = default)

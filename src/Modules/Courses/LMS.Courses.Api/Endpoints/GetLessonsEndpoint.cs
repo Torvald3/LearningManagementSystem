@@ -21,7 +21,7 @@ public static class GetLessonsEndpoint
     private static async Task<IResult> GetLessons(
         Guid courseId,
         Guid moduleId,
-        IQueryHandler<GetLessonsQuery, IReadOnlyList<LessonSummary>> handler)
+        IQueryHandler<GetLessonsQuery, List<LessonSummary>> handler)
     {
         var result = await handler.Handle(new GetLessonsQuery(courseId, moduleId));
 
