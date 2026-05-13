@@ -1,0 +1,115 @@
+﻿version: '3.8'
+
+services:
+  app:
+    container_name: lms-app
+    build:
+      context: .
+      dockerfile: src/LMS.App/Dockerfile
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      promtail:
+        condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      Database__Server: db
+      Database__Name: lms_db
+      Database__Username: postgres
+      Database__Password: postgres
+      Database__Port: 5432
+      MediaStorage__Endpoint: minio:9000
+      MediaStorage__AccessKey: minioadmin
+      MediaStorage__SecretKey: minioadmin
+      MediaStorage__Bucket: lms-media
+      MediaStorage__UseSsl: "false"
+      MediaStorage__PresignedUrlExpirationMinutes: "10"
+      MediaStorage__MaxFileSizeMb: "100"
+      JwtAuth__Issuer: lms
+      JwtAuth__Audience: lms.client
+      JwtAuth__SigningKey: dev-secret-key-change-me-please-32chars-min
+      JwtAuth__AccessTokenLifetimeInMinutes: "60"
+      JwtAuth__RefreshTokenLifetimeInDays: "30"
+      OpenApi__EnableScalar: "true"
+    ports:
+      - "5277:8080"
+
+  db:
+    image: postgres:latest
+    container_name: postgres_container
+    restart: always
+    environment:
+      POSTGRES_DB: lms_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d lms_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio_container
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+      
+  loki:
+    image: grafana/loki:3.7.0
+    container_name: lms-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:3.6.10
+    container_name: lms-promtail
+    volumes:
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: lms-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - loki
+
+volumes:
+  db_data:
+  minio_data:
+  loki-data:
+  grafana-data:

@@ -40,7 +40,6 @@ services:
       retries: 12
       start_period: 20s
 
-
 volumes:
   db_data:
   minio_data:
